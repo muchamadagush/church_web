@@ -98,7 +98,7 @@
         <h2 style="font-size: 24px; margin-bottom: 10px;">Apakah Anda Yakin</h2>
         <p style="font-size: 18px; margin-bottom: 20px;">Ingin Menghapus Data?</p>
         <div style="display: flex; justify-content: center; gap: 10px;">
-            <form id="deleteForm" action="" method="POST" style="display: inline;">
+            <form id="deleteForm" method="POST" style="display: inline;">
                 @csrf
                 @method('DELETE')
                 <button type="submit" style="background: #4839EB; color: white; border: none; padding: 12px 30px; border-radius: 25px; cursor: pointer; font-size: 16px;">
@@ -116,7 +116,7 @@
     function showDeleteModal(id) {
         const modal = document.getElementById('deleteModal');
         const form = document.getElementById('deleteForm');
-        form.action = `{{ url('pengumuman') }}/${id}`; // Fixed route construction
+        form.action = `{{ route('pengumuman.index') }}/${id}`;
         modal.style.display = 'flex';
     }
 
