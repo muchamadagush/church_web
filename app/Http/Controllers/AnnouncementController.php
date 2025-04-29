@@ -23,19 +23,18 @@ class AnnouncementController extends Controller
 
     public function create()
     {
-        $churches = Church::all();
-        return view('pengumuman.create', compact('churches'));
+        return view('pengumuman.create');
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'church_id' => 'required|exists:churches,id',
-            'title' => 'required',
+            'title' => 'required|string|max:255',
             'announcement_date' => 'required|date',
-            'banner' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
+        // Add user_id to validated data
         $validated['user_id'] = auth()->id();
 
         if ($request->hasFile('banner')) {
@@ -49,17 +48,15 @@ class AnnouncementController extends Controller
 
     public function edit(Announcement $announcement)
     {
-        $churches = Church::all();
-        return view('pengumuman.edit', compact('announcement', 'churches')); // Changed from announcements.edit
+        return view('pengumuman.edit', compact('announcement'));
     }
 
     public function update(Request $request, Announcement $announcement)
     {
         $validated = $request->validate([
-            'church_id' => 'required|exists:churches,id',
-            'title' => 'required',
+            'title' => 'required|string|max:255',
             'announcement_date' => 'required|date',
-            'banner' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         if ($request->hasFile('banner')) {

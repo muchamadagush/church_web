@@ -10,11 +10,14 @@ class Announcement extends Model
     use HasFactory;
 
     protected $fillable = [
-        'church_id',
-        'user_id',
         'title',
         'announcement_date',
-        'banner'
+        'banner',
+        'user_id'
+    ];
+
+    protected $dates = [
+        'announcement_date'
     ];
 
     public function church()

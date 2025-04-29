@@ -16,21 +16,6 @@
         </div>
 
         <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 5px;">Gereja :</label>
-            <select name="church_id" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                <option value="">Pilih Gereja</option>
-                @foreach($churches as $church)
-                    <option value="{{ $church->id }}" {{ old('church_id') == $church->id ? 'selected' : '' }}>
-                        {{ $church->name }}
-                    </option>
-                @endforeach
-            </select>
-            @error('church_id')
-                <span style="color: red; font-size: 0.8em;">{{ $message }}</span>
-            @enderror
-        </div>
-
-        <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 5px;">Tanggal :</label>
             <input type="date" name="announcement_date" value="{{ old('announcement_date') }}"
                 style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">

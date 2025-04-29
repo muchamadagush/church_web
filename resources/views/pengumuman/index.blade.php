@@ -41,18 +41,18 @@
         <table style="width: 100%; border-collapse: collapse;">
             <thead style="background: #f5f5f5;">
                 <tr>
-                    <th style="padding: 15px; text-align: left;">Nama Gereja</th>
-                    <th style="padding: 15px; text-align: left;">Judul Pengumuman</th>
-                    <th style="padding: 15px; text-align: left;">Tanggal Pengumuman</th>
-                    <th style="padding: 15px; text-align: left;">Banner</th>
-                    <th style="padding: 15px; text-align: left;">Aksi</th>
+                    <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">No</th>
+                    <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Judul Pengumuman</th>
+                    <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal Pengumuman</th>
+                    <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Banner</th>
+                    <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @if(isset($announcements) && count($announcements) > 0)
-                    @foreach($announcements as $announcement)
+                    @forelse($announcements as $index => $announcement)
                     <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 15px;">{{ $announcement->church->name }}</td>
+                        <td style="padding: 15px; text-align: left;">{{ $index + 1 }}</td>
                         <td style="padding: 15px;">{{ $announcement->title }}</td>
                         <td style="padding: 15px;">{{ \Carbon\Carbon::parse($announcement->announcement_date)->format('d M Y') }}</td>
                         <td style="padding: 15px;">
@@ -78,7 +78,7 @@
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="5" style="padding: 15px; text-align: center;">Tidak ada data pengumuman</td>
+                        <td colspan="4" style="padding: 15px; text-align: center;">Tidak ada data pengumuman</td>
                     </tr>
                 @endif
             </tbody>
