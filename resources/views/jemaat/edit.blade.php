@@ -18,11 +18,6 @@
                     style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
             <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px;">Email</label>
-                <input type="email" name="email" value="{{ $jemaat->email }}" required 
-                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            </div>
-            <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px;">Tanggal Lahir</label>
                 <input type="date" name="dateofbirth" value="{{ $jemaat->dateofbirth }}" required 
                     style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">

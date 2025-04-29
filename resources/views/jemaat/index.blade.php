@@ -43,7 +43,6 @@
                 <tr>
                     <th style="padding: 15px; text-align: left;">Username</th>
                     <th style="padding: 15px; text-align: left;">Nama Lengkap</th>
-                    <th style="padding: 15px; text-align: left;">Email</th>
                     <th style="padding: 15px; text-align: left;">Tanggal Lahir</th>
                     <th style="padding: 15px; text-align: left;">Alamat</th>
                     <th style="padding: 15px; text-align: left;">Aksi</th>
@@ -55,7 +54,6 @@
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 15px;">{{ $jemaat->username }}</td>
                         <td style="padding: 15px;">{{ $jemaat->fullname }}</td>
-                        <td style="padding: 15px;">{{ $jemaat->email }}</td>
                         <td style="padding: 15px;">{{ $jemaat->dateofbirth ? date('d M Y', strtotime($jemaat->dateofbirth)) : '-' }}</td>
                         <td style="padding: 15px;">{{ $jemaat->address }}</td>
                         <td style="padding: 15px;">

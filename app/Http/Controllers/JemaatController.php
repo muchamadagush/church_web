@@ -33,7 +33,7 @@ class JemaatController extends Controller
         $validated = $request->validate([
             'username' => 'required|unique:users',
             'fullname' => 'required',
-            'email' => 'required|email|unique:users',
+            'email' => 'nullable|email|unique:users',
             'password' => 'required|min:6',
             'dateofbirth' => 'required',
             'address' => 'required',
@@ -60,7 +60,7 @@ class JemaatController extends Controller
         $request->validate([
             'username' => 'required|string|max:255',
             'fullname' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'email' => 'nullable|email|max:255',
             'dateofbirth' => 'required|date',
             'address' => 'required|string',
             'church_id' => 'required|exists:churches,id',
