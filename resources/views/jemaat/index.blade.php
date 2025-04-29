@@ -46,7 +46,7 @@
                     <th style="padding: 15px; text-align: left;">Email</th>
                     <th style="padding: 15px; text-align: left;">Tanggal Lahir</th>
                     <th style="padding: 15px; text-align: left;">Alamat</th>
-                    <th style="padding: 15px; text-align: left;">Action</th>
+                    <th style="padding: 15px; text-align: left;">Aksi</th>
                 </tr>
             </thead>
             <tbody>

@@ -45,7 +45,7 @@
                     <th style="padding: 15px; text-align: left;">Judul Pengumuman</th>
                     <th style="padding: 15px; text-align: left;">Tanggal Pengumuman</th>
                     <th style="padding: 15px; text-align: left;">Banner</th>
-                    <th style="padding: 15px; text-align: left;">Action</th>
+                    <th style="padding: 15px; text-align: left;">Aksi</th>
                 </tr>
             </thead>
             <tbody>

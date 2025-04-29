@@ -165,7 +165,7 @@
             <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a></li>
             <li><a href="{{ route('jemaat.index') }}" class="{{ request()->routeIs('jemaat.*') ? 'active' : '' }}">Jemaat</a></li>
             <li><a href="{{ route('pengumuman.index') }}" class="{{ request()->routeIs('pengumuman.*') ? 'active' : '' }}">Pengumuman</a></li>
-            <li><a href="{{ route('jadwal.index') }}" class="{{ request()->routeIs('jadwal.*') ? 'active' : '' }}">Jadwal Ibadah</a></li>
+            <li><a href="{{ route('worship-schedules.index') }}" class="{{ request()->routeIs('worship-schedules.*') ? 'active' : '' }}">Jadwal Ibadah</a></li>
             <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
         </ul>
     </nav>

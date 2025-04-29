@@ -25,7 +25,7 @@
         <div>
             <h2>Jadwal Ibadah</h2>
             <p>Lihat Jadwal Ibadah</p>
-            <a href="{{ route('jadwal.index') }}" class="button-detail">Lihat Detail</a>
+            <a href="{{ route('worship-schedules.index') }}" class="button-detail">Lihat Detail</a>
         </div>
     </div>
 </div>
