@@ -5,7 +5,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1>Data Jadwal Kunjungan Ketua Wilayah</h1>
         <a href="{{ route('worship-schedules.visits.create') }}" class="button-detail">
-            Tambah Data
+            + Tambah Data
         </a>
     </div>
 

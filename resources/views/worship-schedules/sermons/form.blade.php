@@ -18,7 +18,10 @@
             @if(isset($schedule)) @method('PUT') @endif
 
             <div style="margin-bottom: 15px; max-width: 100%;">
-                <label for="pengkhotbah">Nama Pengkhotbah</label>
+                <label for="pengkhotbah">
+                    Nama Pengkhotbah
+                    <span style="color: #dc2626;">*</span>
+                </label>
                 <input type="text" 
                        id="pengkhotbah" 
                        name="pengkhotbah" 

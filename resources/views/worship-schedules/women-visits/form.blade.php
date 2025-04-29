@@ -12,7 +12,10 @@
             @if(isset($schedule)) @method('PUT') @endif
 
             <div style="margin-bottom: 15px;">
-                <label for="visit_date">Tanggal Kunjungan</label>
+                <label for="visit_date">
+                    Tanggal Kunjungan
+                    <span style="color: #dc2626;">*</span>
+                </label>
                 <input
                     type="date"
                     id="visit_date"
@@ -23,7 +26,10 @@
             </div>
 
             <div style="margin-bottom: 15px;">
-                <label for="church_id">Nama Gereja</label>
+                <label for="church_id">
+                    Nama Gereja
+                    <span style="color: #dc2626;">*</span>
+                </label>
                 <select name="church_id" id="church_id" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
                     <option value="">Pilih Gereja</option>
                     @foreach($churches as $church)
@@ -35,7 +41,10 @@
             </div>
 
             <div style="margin-bottom: 15px;">
-                <label for="worship_leader">Pimpin Pujian</label>
+                <label for="worship_leader">
+                    Pimpin Pujian
+                    <span style="color: #dc2626;">*</span>
+                </label>
                 <input
                     type="text"
                     id="worship_leader"
@@ -46,7 +55,10 @@
             </div>
 
             <div style="margin-bottom: 15px;">
-                <label for="preacher">Pengkhotbah</label>
+                <label for="preacher">
+                    Pengkhotbah
+                    <span style="color: #dc2626;">*</span>
+                </label>
                 <input
                     type="text"
                     id="preacher"

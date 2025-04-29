@@ -4,7 +4,7 @@
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1>Data Jadwal Doa Wilayah</h1>
-        <a href="{{ route('worship-schedules.prayer-schedules.create') }}" class="button-detail">Tambah Data</a>
+        <a href="{{ route('worship-schedules.prayer-schedules.create') }}" class="button-detail">+ Tambah Data</a>
     </div>
 
     @if(session('success'))

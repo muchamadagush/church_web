@@ -19,7 +19,7 @@
             </button>
         </form>
         <div>
-            <a href="{{ route('jemaat.create') }}" class="button-detail">Tambah Jemaat</a>
+            <a href="{{ route('jemaat.create') }}" class="button-detail">+ Tambah Data</a>
             <a href="#" class="button-detail">
                 Download
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 8px;">

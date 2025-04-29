@@ -10,7 +10,10 @@
             @if(isset($prayer_schedule)) @method('PUT') @endif
 
             <div style="margin-bottom: 20px;">
-                <label for="tanggal" style="display: block; margin-bottom: 8px;">Tanggal</label>
+                <label for="tanggal" style="display: block; margin-bottom: 8px;">
+                    Tanggal
+                    <span style="color: #dc2626;">*</span>
+                </label>
                 <input type="date" id="tanggal" name="tanggal" 
                     value="{{ old('tanggal', isset($prayer_schedule) ? $prayer_schedule->tanggal->format('Y-m-d') : '') }}"
                     required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
@@ -20,7 +23,10 @@
             </div>
 
             <div style="margin-bottom: 20px;">
-                <label for="nama_gereja" style="display: block; margin-bottom: 8px;">Nama Gereja</label>
+                <label for="nama_gereja" style="display: block; margin-bottom: 8px;">
+                    Nama Gereja
+                    <span style="color: #dc2626;">*</span>
+                </label>
                 <select id="nama_gereja" name="nama_gereja" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: white; box-sizing: border-box;">
                     <option value="">Pilih Gereja</option>
                     @foreach($churches as $church)
@@ -35,7 +41,10 @@
             </div>
 
             <div style="margin-bottom: 20px;">
-                <label for="pimpinan_pujian" style="display: block; margin-bottom: 8px;">Pimpinan Pujian</label>
+                <label for="pimpinan_pujian" style="display: block; margin-bottom: 8px;">
+                    Pimpinan Pujian
+                    <span style="color: #dc2626;">*</span>
+                </label>
                 <input type="text" id="pimpinan_pujian" name="pimpinan_pujian" 
                     value="{{ old('pimpinan_pujian', $prayer_schedule->pimpinan_pujian ?? '') }}"
                     required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
@@ -45,7 +54,10 @@
             </div>
 
             <div style="margin-bottom: 20px;">
-                <label for="pengkhotbah" style="display: block; margin-bottom: 8px;">Pengkhotbah</label>
+                <label for="pengkhotbah" style="display: block; margin-bottom: 8px;">
+                    Pengkhotbah
+                    <span style="color: #dc2626;">*</span>
+                </label>
                 <input type="text" id="pengkhotbah" name="pengkhotbah" 
                     value="{{ old('pengkhotbah', $prayer_schedule->pengkhotbah ?? '') }}"
                     required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
