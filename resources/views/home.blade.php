@@ -28,5 +28,14 @@
             <a href="{{ route('worship-schedules.index') }}" class="button-detail">Lihat Detail</a>
         </div>
     </div>
+
+    <div class="card" style="display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 20px;">
+        <img src="{{ asset('images/finance.svg') }}" alt="Jadwal Ibadah" class="icon" style="width: 100px; height: 100px;">
+        <div>
+            <h2>Keuangan</h2>
+            <p>Lihat Keuangan</p>
+            <a href="#" class="button-detail">Lihat Detail</a>
+        </div>
+    </div>
 </div>
 @endsection

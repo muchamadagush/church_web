@@ -49,5 +49,29 @@
         </a>
         </div>
     </div>
+
+    <!-- Jadwal Natal -->
+    <div class="card" style="display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 20px;">
+        <img src="{{ asset('images/christmas.png') }}" alt="Christmas" class="icon">
+        <div>
+        <h2>Jadwal Natal</h2>
+        <p>Lihat Jadwal Natal</p>
+        <a href="{{ route('worship-schedules.christmas.index') }}" class="button-detail">
+            Lihat Detail
+        </a>
+        </div>
+    </div>
+
+    <!-- Jadwal Perkunjungan Kaum Muda -->
+    <div class="card" style="display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 20px;">
+        <img src="{{ asset('images/youth-icon.svg') }}" alt="Youth" class="icon">
+        <div>
+        <h2>Jadwal Perkunjungan Kaum Muda</h2>
+        <p>Lihat Jadwal Kaum Muda</p>
+        <a href="{{ route('worship-schedules.youth-visit.index') }}" class="button-detail">
+            Lihat Detail
+        </a>
+        </div>
+    </div>
 </div>
 @endsection

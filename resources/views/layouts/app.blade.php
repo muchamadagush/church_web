@@ -31,6 +31,7 @@
             background: #333333;
             padding: 15px 0;
             overflow-x: auto;
+            justify-content: center !important;
         }
         .navbar ul {
             list-style: none;
@@ -166,6 +167,7 @@
             <li><a href="{{ route('jemaat.index') }}" class="{{ request()->routeIs('jemaat.*') ? 'active' : '' }}">Jemaat</a></li>
             <li><a href="{{ route('pengumuman.index') }}" class="{{ request()->routeIs('pengumuman.*') ? 'active' : '' }}">Pengumuman</a></li>
             <li><a href="{{ route('worship-schedules.index') }}" class="{{ request()->routeIs('worship-schedules.*') ? 'active' : '' }}">Jadwal Ibadah</a></li>
+            <li><a href="#" class="#">Keuangan</a></li>
             <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
         </ul>
     </nav>

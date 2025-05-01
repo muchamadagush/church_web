@@ -32,7 +32,7 @@
     </div>
 
     @if(session('success'))
-        <div style="background: #4CAF50; color: white; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+        <div style="background: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
             {{ session('success') }}
         </div>
     @endif
@@ -41,34 +41,32 @@
         <table style="width: 100%; border-collapse: collapse;">
             <thead style="background: #f5f5f5;">
                 <tr>
-                    <th style="padding: 15px; text-align: left;">Username</th>
-                    <th style="padding: 15px; text-align: left;">Nama Lengkap</th>
-                    <th style="padding: 15px; text-align: left;">Tanggal Lahir</th>
-                    <th style="padding: 15px; text-align: left;">Alamat</th>
-                    <th style="padding: 15px; text-align: left;">Aksi</th>
+                    <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">No</th>
+                    <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Username</th>
+                    <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Nama Lengkap</th>
+                    <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal Lahir</th>
+                    <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Alamat</th>
+                    <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @if(isset($jemaats) && count($jemaats) > 0)
-                    @foreach($jemaats as $jemaat)
+                    @forelse($jemaats as $index => $jemaat)
                     <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 15px; text-align: center;">{{ $index + 1 }}</td>
                         <td style="padding: 15px;">{{ $jemaat->username }}</td>
                         <td style="padding: 15px;">{{ $jemaat->fullname }}</td>
                         <td style="padding: 15px;">{{ $jemaat->dateofbirth ? date('d M Y', strtotime($jemaat->dateofbirth)) : '-' }}</td>
                         <td style="padding: 15px;">{{ $jemaat->address }}</td>
-                        <td style="padding: 15px;">
-                            <a href="{{ route('jemaat.edit', $jemaat) }}" 
-                                style="background: #ff9f43; color: white; border: none; padding: 5px 15px; border-radius: 4px; margin-right: 5px; text-decoration: none; display: inline-block;">
+                        <td style="padding: 15px; text-align: center;">
+                            <a href="{{ route('jemaat.edit', $jemaat) }}"
+                                style="background: #ff9f43; color: white; border: none; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block; font-size: 14px;">
                                 Ubah
                             </a>
-                            <form action="{{ route('jemaat.destroy', $jemaat) }}" method="POST" style="display: inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')"
-                                    style="background: #ff4757; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;">
-                                    Delete
-                                </button>
-                            </form>
+                            <button type="button" onclick="showDeleteModal({{ $jemaat->id }})"
+                                style="background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                                Hapus
+                            </button>
                         </td>
                     </tr>
                     @endforeach
@@ -86,4 +84,45 @@
         </table>
     </div>
 </div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+    <div style="background: white; padding: 30px; border-radius: 10px; width: 400px; text-align: center;">
+        <h2 style="font-size: 24px; margin-bottom: 10px;">Apakah Anda Yakin</h2>
+        <p style="font-size: 18px; margin-bottom: 20px;">Ingin Menghapus Data?</p>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+            <form id="deleteForm" method="POST" style="display: inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" style="background: #4839EB; color: white; border: none; padding: 12px 30px; border-radius: 25px; cursor: pointer; font-size: 16px;">
+                    Hapus
+                </button>
+            </form>
+            <button onclick="hideDeleteModal()" style="background: #FF0000; color: white; border: none; padding: 12px 30px; border-radius: 25px; cursor: pointer; font-size: 16px;">
+                Batal
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(id) {
+        const modal = document.getElementById('deleteModal');
+        const form = document.getElementById('deleteForm');
+        form.action = `{{ route('jemaat.index') }}/${id}`;
+        modal.style.display = 'flex';
+    }
+
+    function hideDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideDeleteModal();
+        }
+    });
+</script>
 @endsection

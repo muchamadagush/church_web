@@ -15,7 +15,7 @@
 
     <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <table style="width: 100%; border-collapse: collapse; border-radius: 8px;">
-            <thead style=" border-radius: 8px;>
+            <thead style="border-radius: 8px;">
                 <tr style="background: #f8f9fa;">
                     <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">No</th>
                     <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>

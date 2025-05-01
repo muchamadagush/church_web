@@ -11,6 +11,8 @@ use App\Http\Controllers\PrayerScheduleController;
 use App\Http\Controllers\VisitScheduleController;
 use App\Http\Controllers\WomenVisitScheduleController;
 use App\Http\Controllers\SermonScheduleController;
+use App\Http\Controllers\ChristmasScheduleController;
+use App\Http\Controllers\YouthVisitScheduleController;
 
 Auth::routes();
 
@@ -61,6 +63,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/women-visits/{schedule}/edit', [WomenVisitScheduleController::class, 'edit'])->name('women-visits.edit');
         Route::put('/women-visits/{schedule}', [WomenVisitScheduleController::class, 'update'])->name('women-visits.update');
         Route::delete('/women-visits/{schedule}', [WomenVisitScheduleController::class, 'destroy'])->name('women-visits.destroy');
+
+        // Christmas schedules routes
+        Route::get('/christmas', [ChristmasScheduleController::class, 'index'])->name('christmas.index');
+        Route::get('/christmas/create', [ChristmasScheduleController::class, 'create'])->name('christmas.create');
+        Route::post('/christmas', [ChristmasScheduleController::class, 'store'])->name('christmas.store');
+        Route::get('/christmas/{schedule}/edit', [ChristmasScheduleController::class, 'edit'])->name('christmas.edit');
+        Route::put('/christmas/{schedule}', [ChristmasScheduleController::class, 'update'])->name('christmas.update');
+        Route::delete('/christmas/{schedule}', [ChristmasScheduleController::class, 'destroy'])->name('christmas.destroy');
+
+        // Youth Visit Schedules routes
+        Route::get('/youth-visit', [YouthVisitScheduleController::class, 'index'])->name('youth-visit.index');
+        Route::get('/youth-visit/create', [YouthVisitScheduleController::class, 'create'])->name('youth-visit.create');
+        Route::post('/youth-visit', [YouthVisitScheduleController::class, 'store'])->name('youth-visit.store');
+        Route::get('/youth-visit/{schedule}/edit', [YouthVisitScheduleController::class, 'edit'])->name('youth-visit.edit');
+        Route::put('/youth-visit/{schedule}', [YouthVisitScheduleController::class, 'update'])->name('youth-visit.update');
+        Route::delete('/youth-visit/{schedule}', [YouthVisitScheduleController::class, 'destroy'])->name('youth-visit.destroy');
     });
 
 });
