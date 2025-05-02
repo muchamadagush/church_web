@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Church;
+use App\Exports\JemaatExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -76,5 +78,15 @@ class JemaatController extends Controller
     {
         $jemaat->delete();
         return redirect()->route('jemaat.index')->with('success', 'Jemaat berhasil dihapus');
+    }
+
+    public function export() 
+    {
+        return Excel::download(new JemaatExport, 'data-jemaat.xlsx');
+    }
+
+    public function show(User $jemaat)
+    {
+        return redirect()->route('jemaat.index');
     }
 }

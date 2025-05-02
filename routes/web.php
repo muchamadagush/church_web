@@ -19,7 +19,7 @@ Auth::routes();
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::resource('churches', ChurchController::class);
-    Route::resource('jemaat', JemaatController::class);
+    Route::resource('jemaat', JemaatController::class, ['except' => ['show']]);
     Route::resource('pengumuman', AnnouncementController::class)->parameters([
         'pengumuman' => 'announcement'
     ]);
@@ -81,4 +81,6 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/youth-visit/{schedule}', [YouthVisitScheduleController::class, 'destroy'])->name('youth-visit.destroy');
     });
 
+    // Add this to your routes/web.php file
+    Route::get('/jemaat/export', [App\Http\Controllers\JemaatController::class, 'export'])->name('jemaat.export');
 });

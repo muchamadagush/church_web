@@ -58,4 +58,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the church associated with the user.
+     */
+    public function church()
+    {
+        return $this->belongsTo(Church::class);
+    }
 }

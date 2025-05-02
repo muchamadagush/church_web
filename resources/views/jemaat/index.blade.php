@@ -20,7 +20,7 @@
       </button>
     </form>
     <div>
-      <a href="#" class="button-detail">
+      <a href="{{ route('jemaat.export') }}" class="button-detail">
         Download
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 8px;">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
