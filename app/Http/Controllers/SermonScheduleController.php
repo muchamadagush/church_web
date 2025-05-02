@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Church;
 use App\Models\SermonSchedule;
+use App\Models\SermonScheduleDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,19 +19,39 @@ class SermonScheduleController extends Controller
     public function create()
     {
         $churches = Church::all();
-        return view('worship-schedules.sermons.form', compact('churches'));
+        
+        // Get all months that are already assigned to schedules, excluding the current one if editing
+        $usedMonths = SermonScheduleDetail::query()
+            ->when(request()->route('sermon'), function($query, $sermon) {
+                return $query->where('sermon_schedule_id', '!=', $sermon);
+            })
+            ->pluck('month')
+            ->toArray();
+        
+        return view('worship-schedules.sermons.form', compact('churches', 'usedMonths'));
     }
 
     public function store(Request $request)
     {
-        // Debugging: Cek data yang diterima
-        \Log::info('Received data:', $request->all());
-
-        $validated = $request->validate([
-            'pengkhotbah' => 'required|string',
+        $validatedData = $request->validate([
+            'pengkhotbah' => 'required|string|max:255',
             'churches' => 'required|array',
             'churches.*.church_id' => 'required|exists:churches,id',
-            'churches.*.month' => 'required|string'
+            'churches.*.month' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    // Check if this month is already used in another record
+                    $exists = SermonScheduleDetail::where('month', $value)
+                        ->when(request()->route('sermon'), function($query, $sermon) {
+                            return $query->where('sermon_schedule_id', '!=', $sermon);
+                        })
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail("Bulan $value sudah digunakan di jadwal lain.");
+                    }
+                }
+            ],
         ]);
 
         try {
@@ -63,8 +84,17 @@ class SermonScheduleController extends Controller
     public function edit(SermonSchedule $schedule)
     {
         $churches = Church::all();
-        $schedule->load('details.church');
-        return view('worship-schedules.sermons.form', compact('schedule', 'churches'));
+        
+        // Get used months excluding those from this schedule
+        $usedMonths = SermonScheduleDetail::where('sermon_schedule_id', '!=', $schedule->id)
+            ->pluck('month')
+            ->toArray();
+        
+        return view('worship-schedules.sermons.form', [
+            'schedule' => $schedule,
+            'churches' => $churches,
+            'usedMonths' => $usedMonths
+        ]);
     }
 
     public function update(Request $request, SermonSchedule $schedule)
@@ -73,7 +103,20 @@ class SermonScheduleController extends Controller
             'pengkhotbah' => 'required|string',
             'churches' => 'required|array',
             'churches.*.church_id' => 'required|exists:churches,id',
-            'churches.*.month' => 'required|string'
+            'churches.*.month' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($schedule) {
+                    // Check if this month is already used in another record
+                    $exists = SermonScheduleDetail::where('month', $value)
+                        ->where('sermon_schedule_id', '!=', $schedule->id)
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail("Bulan $value sudah digunakan di jadwal lain.");
+                    }
+                }
+            ]
         ]);
 
         try {
