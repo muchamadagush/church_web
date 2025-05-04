@@ -11,17 +11,36 @@ use Illuminate\Support\Facades\Hash;
 
 class JemaatController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
-        $query = User::where('role', 'jemaat');
-
-        if ($request->search) {
-            $query->where('fullname', 'like', "%{$request->search}%");
+        $search = $request->input('search');
+        
+        $query = User::where('role', 'jemaat')
+                    ->orderBy('created_at', 'desc');
+        
+        // Apply search filter if search parameter exists
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('username', 'like', '%' . $search . '%')
+                  ->orWhere('fullname', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
         }
-
+        
         $jemaats = $query->paginate(10);
         
-        return view('jemaat.index', compact('jemaats'));
+        // Append search parameter to pagination links
+        if ($search) {
+            $jemaats->appends(['search' => $search]);
+        }
+        
+        return view('jemaat.index', compact('jemaats', 'search'));
     }
 
     public function create()

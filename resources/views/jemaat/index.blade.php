@@ -10,15 +10,21 @@
   </div>
 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <form action="{{ route('jemaat.index') }}" method="GET" style="position: relative;">
-      <input type="text" name="search" placeholder="Cari Nama Jemaat" value="{{ request('search') }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 250px;">
-      <button type="submit" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-      </button>
-    </form>
+    <div style="max-width: 400px; width: 100%;">
+      <form action="{{ route('jemaat.index') }}" method="GET">
+        <div style="display: flex; gap: 10px;">
+          <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari jemaat..." style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;">
+          <button type="submit" style="padding: 8px 16px; background-color: #c9a035; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Cari
+          </button>
+          @if(!empty($search))
+          <a href="{{ route('jemaat.index') }}" style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; text-decoration: none; display: inline-block;">
+            Reset
+          </a>
+          @endif
+        </div>
+      </form>
+    </div>
     <div>
       <a href="{{ route('jemaat.export') }}" class="button-detail">
         Download

@@ -7,17 +7,39 @@
     <a href="{{ route('pengumuman.create') }}" class="button-detail">+ Tambah Data</a>
   </div>
 
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <form action="{{ route('pengumuman.index') }}" method="GET" style="position: relative;">
-      <input type="text" name="search" placeholder="Cari Judul Pengumuman" value="{{ request('search') }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 250px;">
-      <button type="submit" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-      </button>
+  <div style="margin-bottom: 20px; max-width: 400px;">
+    <form action="{{ route('pengumuman.index') }}" method="GET">
+      <div style="display: flex; gap: 10px;">
+        <input 
+          type="text" 
+          name="search" 
+          value="{{ $search ?? '' }}" 
+          placeholder="Cari pengumuman..." 
+          style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;"
+        >
+        <button 
+          type="submit" 
+          style="padding: 8px 16px; background-color: #c9a035; color: white; border: none; border-radius: 4px; cursor: pointer;"
+        >
+          Cari
+        </button>
+        @if(!empty($search))
+          <a 
+            href="{{ route('pengumuman.index') }}" 
+            style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; text-decoration: none; display: inline-block;"
+          >
+            Reset
+          </a>
+        @endif
+      </div>
     </form>
   </div>
+
+  @if(!empty($search) && $announcements->isEmpty())
+  <div style="text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 20px;">
+    <p>Tidak ada pengumuman dengan judul "<strong>{{ $search }}</strong>"</p>
+  </div>
+  @endif
 
   @if(session('success'))
   <div style="background: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">

@@ -9,16 +9,31 @@ use Illuminate\Support\Facades\Storage;
 
 class AnnouncementController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
-        $query = Announcement::with(['church', 'user']);
+        $search = $request->input('search');
         
-        if ($request->has('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+        $query = Announcement::orderBy('created_at', 'desc');
+        
+        // Apply search filter if search parameter exists
+        if ($search) {
+            $query->where('title', 'like', '%' . $search . '%');
         }
         
         $announcements = $query->paginate(10);
-        return view('pengumuman.index', compact('announcements'));
+        
+        // Append search parameter to pagination links
+        if ($search) {
+            $announcements->appends(['search' => $search]);
+        }
+        
+        return view('pengumuman.index', compact('announcements', 'search'));
     }
 
     public function create()

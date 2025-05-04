@@ -34,7 +34,7 @@
         <div>
             <h2>Keuangan</h2>
             <p>Lihat Keuangan</p>
-            <a href="#" class="button-detail">Lihat Detail</a>
+            <a href="{{ route('keuangan.index') }}" class="button-detail">Lihat Detail</a>
         </div>
     </div>
 </div>

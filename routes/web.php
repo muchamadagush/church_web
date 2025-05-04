@@ -13,6 +13,7 @@ use App\Http\Controllers\WomenVisitScheduleController;
 use App\Http\Controllers\SermonScheduleController;
 use App\Http\Controllers\ChristmasScheduleController;
 use App\Http\Controllers\YouthVisitScheduleController;
+use App\Http\Controllers\KeuanganController;
 
 Auth::routes();
 
@@ -23,6 +24,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('pengumuman', AnnouncementController::class)->parameters([
         'pengumuman' => 'announcement'
     ]);
+    
+    // Keuangan Routes
+    Route::resource('keuangan', KeuanganController::class);
+    Route::get('/keuangan-download', [KeuanganController::class, 'download'])->name('keuangan.download');
 
     Route::get('/jadwal', function () {
         return view('jadwal.index');
