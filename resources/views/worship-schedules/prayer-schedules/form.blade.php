@@ -29,11 +29,11 @@
 
       <div style="margin-bottom: 20px;">
         <label for="nama_gereja" style="display: blsock; margin-bottom: 8px;">
-          Nama Gereja
+          Tempat Doa
           <span style="color: #dc2626;">*</span>
         </label>
         <select id="nama_gereja" name="nama_gereja" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: white; box-sizing: border-box;">
-          <option value="">Pilih Gereja</option>
+          <option value="">Pilih Tempat Doa</option>
           @foreach($churches as $church)
           <option value="{{ $church->name }}" {{ old('nama_gereja', $prayer_schedule->nama_gereja ?? '') == $church->name ? 'selected' : '' }}>
             {{ $church->name }}
@@ -47,7 +47,7 @@
 
       <div style="margin-bottom: 20px;">
         <label for="pimpinan_pujian" style="display: block; margin-bottom: 8px;">
-          Pimpinan Pujian
+          Pimpin Pujian
           <span style="color: #dc2626;">*</span>
         </label>
         <input type="text" id="pimpinan_pujian" name="pimpinan_pujian" value="{{ old('pimpinan_pujian', $prayer_schedule->pimpinan_pujian ?? '') }}" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">

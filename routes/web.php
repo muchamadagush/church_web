@@ -89,3 +89,6 @@ Route::middleware(['auth'])->group(function () {
     // Add this to your routes/web.php file
     Route::get('/jemaat/export', [App\Http\Controllers\JemaatController::class, 'export'])->name('jemaat.export');
 });
+
+// Public routes
+Route::get('/about', [App\Http\Controllers\AboutController::class, 'index'])->name('about');

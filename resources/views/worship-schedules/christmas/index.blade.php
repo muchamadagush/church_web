@@ -17,20 +17,19 @@
     <table style="width: 100%; border-collapse: collapse;">
       <thead style="background: #f5f5f5;">
         <tr>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">No</th>
+          <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">No</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Nama Gereja</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Action</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tempat Ibadah</th>
+          <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Action</th>
         </tr>
       </thead>
       <tbody>
         @forelse($schedules as $index => $schedule)
           <tr style="border-bottom: 1px solid #eee;">
-            <td style="padding: 15px;">{{ $index + 1 }}</td>
+            <td style="padding: 15px; text-align: center;">{{ $index + 1 }}</td>
             <td style="padding: 15px;">{{ $schedule->schedule_date->format('d F Y') }}</td>
             <td style="padding: 15px;">{{ $schedule->church->name }}</td>
             <td style="padding: 15px; text-align: center;">
-              <div style="display: flex; gap: 5px;">
                 <a
                   href="{{ route('worship-schedules.christmas.edit', $schedule->id) }}"
                   style="background: #ff9f43; color: white; border: none; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block; font-size: 14px;"

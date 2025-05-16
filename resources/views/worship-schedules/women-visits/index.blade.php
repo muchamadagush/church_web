@@ -3,7 +3,7 @@
 @section('content')
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h1>Data Jadwal Kunjungan Kaum Wanita</h1>
+    <h1>Data Jadwal Perkunjungan Kaum Wanita</h1>
     <a href="{{ route('worship-schedules.women-visits.create') }}" class="button-detail">
       + Tambah Data
     </a>
@@ -20,8 +20,8 @@
       <thead style="background: #f5f5f5;">
         <tr>
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">No</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Nama Gereja</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal Perkunjungan</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tempat Pelayanan</th></th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pimpin Pujian</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Aksi</th>

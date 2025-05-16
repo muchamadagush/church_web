@@ -18,7 +18,7 @@
 
       <div style="margin-bottom: 15px;">
         <label for="church_id">
-          Nama Gereja
+          Tempat Pelayanan
           <span style="color: #dc2626;">*</span>
         </label>
         <select name="church_id" id="church_id" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
@@ -36,7 +36,7 @@
 
       <div style="margin-bottom: 15px;">
         <label for="visit_date">
-          Tanggal Kunjungan
+          Tanggal Perkunjungan
           <span style="color: #dc2626;">*</span>
         </label>
         <input type="text" id="datepicker-input" name="visit_date" value="{{ old('visit_date', isset($schedule) ? $schedule->visit_date->format('Y-m-d') : '') }}" required readonly style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; cursor: pointer;">

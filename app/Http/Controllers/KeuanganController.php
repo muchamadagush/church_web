@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Keuangan;
 use App\Exports\KeuanganExport;
+use App\Helpers\PermissionHelper;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -17,6 +18,10 @@ class KeuanganController extends Controller
      */
     public function index(Request $request)
     {
+        if (!PermissionHelper::hasPermission('view', 'keuangan')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $search = $request->input('search');
         
         $query = Keuangan::orderBy('tanggal', 'desc');
@@ -41,8 +46,12 @@ class KeuanganController extends Controller
         if ($search) {
             $keuangan->appends(['search' => $search]);
         }
+
+        // For non-admins, remove edit/delete functionality in the view
+        $canEdit = PermissionHelper::hasPermission('edit', 'keuangan');
+        $canDelete = PermissionHelper::hasPermission('delete', 'keuangan');
         
-        return view('keuangan.index', compact('keuangan', 'total', 'totalDebit', 'totalKredit', 'search'));
+        return view('keuangan.index', compact('keuangan', 'total', 'totalDebit', 'totalKredit', 'search', 'canEdit', 'canDelete'));
     }
 
     /**
@@ -52,6 +61,10 @@ class KeuanganController extends Controller
      */
     public function create()
     {
+        if (!PermissionHelper::hasPermission('create', 'keuangan')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         return view('keuangan.form');
     }
 
@@ -96,6 +109,10 @@ class KeuanganController extends Controller
      */
     public function edit($id)
     {
+        if (!PermissionHelper::hasPermission('edit', 'keuangan')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $keuangan = Keuangan::findOrFail($id);
         return view('keuangan.form', compact('keuangan'));
     }
@@ -109,6 +126,10 @@ class KeuanganController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if (!PermissionHelper::hasPermission('edit', 'keuangan')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $request->validate([
             'tanggal' => 'required|date',
             'nominal' => 'required|numeric',
@@ -142,6 +163,10 @@ class KeuanganController extends Controller
      */
     public function destroy($id)
     {
+        if (!PermissionHelper::hasPermission('delete', 'keuangan')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $keuangan = Keuangan::findOrFail($id);
         $keuangan->delete();
 
@@ -155,6 +180,10 @@ class KeuanganController extends Controller
      */
     public function download()
     {
+        if (!PermissionHelper::hasPermission('download', 'keuangan')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         return Excel::download(new KeuanganExport, 'data_keuangan.xlsx');
     }
 }

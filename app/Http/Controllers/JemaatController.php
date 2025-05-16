@@ -8,6 +8,7 @@ use App\Exports\JemaatExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Helpers\PermissionHelper;
 
 class JemaatController extends Controller
 {
@@ -19,6 +20,10 @@ class JemaatController extends Controller
      */
     public function index(Request $request)
     {
+        if (!PermissionHelper::hasPermission('view', 'jemaat')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $search = $request->input('search');
         
         $query = User::where('role', 'jemaat')
@@ -45,12 +50,20 @@ class JemaatController extends Controller
 
     public function create()
     {
+        if (!PermissionHelper::hasPermission('create', 'jemaat')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $churches = Church::all();
         return view('jemaat.create', compact('churches'));
     }
 
     public function store(Request $request)
     {
+        if (!PermissionHelper::hasPermission('create', 'jemaat')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $validated = $request->validate([
             'username' => 'required|unique:users',
             'fullname' => 'required',
@@ -71,6 +84,10 @@ class JemaatController extends Controller
 
     public function edit($id)
     {
+        if (!PermissionHelper::hasPermission('edit', 'jemaat')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $jemaat = User::findOrFail($id);
         $churches = Church::all();
         return view('jemaat.edit', compact('jemaat', 'churches'));
@@ -78,6 +95,10 @@ class JemaatController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!PermissionHelper::hasPermission('edit', 'jemaat')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $request->validate([
             'username' => 'required|string|max:255',
             'fullname' => 'required|string|max:255',
@@ -95,12 +116,20 @@ class JemaatController extends Controller
 
     public function destroy(User $jemaat)
     {
+        if (!PermissionHelper::hasPermission('delete', 'jemaat')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $jemaat->delete();
         return redirect()->route('jemaat.index')->with('success', 'Jemaat berhasil dihapus');
     }
 
     public function export() 
     {
+        if (!PermissionHelper::hasPermission('download', 'jemaat')) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         return Excel::download(new JemaatExport, 'data-jemaat.xlsx');
     }
 

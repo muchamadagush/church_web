@@ -3,7 +3,7 @@
 @section('content')
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h1>Data Jadwal Kunjungan Kaum Muda</h1>
+    <h1>Data Jadwal Perkunjungan Kaum Muda</h1>
     <a href="{{ route('worship-schedules.youth-visit.create') }}" class="button-detail">+ Tambah Data</a>
   </div>
 
@@ -21,7 +21,7 @@
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Nama Gereja</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Jam</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Worship Leader</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pimpin Pujian</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Action</th>
         </tr>
@@ -87,7 +87,7 @@
 function showDeleteModal(id) {
     const modal = document.getElementById('deleteModal');
     const form = document.getElementById('deleteForm');
-    form.action = "{{ route('worship-schedules.women-visits.destroy', ':id') }}".replace(':id', id);
+    form.action = "{{ route('worship-schedules.youth-visit.destroy', ':id') }}".replace(':id', id);
     modal.style.display = 'flex';
 }
 

@@ -38,14 +38,14 @@
 
       <div style="margin-bottom: 20px;">
         <label style="display: block; margin-bottom: 5px;">
-          Nama Gereja
+          Tempat Ibadah
           <span style="color: #dc2626;">*</span>
         </label>
         <select 
           name="church_id" 
           required
           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-          <option value="">-- Pilih Gereja --</option>
+          <option value="">-- Pilih Tempat Ibadah --</option>
           @foreach($churches as $church)
             <option value="{{ $church->id }}" {{ old('church_id', isset($schedule) ? $schedule->church_id : '') == $church->id ? 'selected' : '' }}>
               {{ $church->name }}

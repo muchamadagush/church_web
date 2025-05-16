@@ -61,7 +61,7 @@
           Tanggal Lahir
           <span style="color: #dc2626;">*</span>
         </label>
-        <input type="text" id="datepicker-input" name="dateofbirth" value="{{ old('dateofbirth', isset($jemaat) ? $jemaat->dateofbirth : '') }}" required readonly style="width: 100%; padding: 5px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; cursor: pointer;">
+        <input type="text" id="datepicker-input" name="dateofbirth" value="{{ old('dateofbirth', isset($jemaat) ? $jemaat->dateofbirth : '') }}" required readonly style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; cursor: pointer;">
         @error('dateofbirth')
         <span style="color: #dc2626; font-size: 0.875em;">{{ $message }}</span>
         @enderror

@@ -18,8 +18,8 @@
       <thead style="background: #f5f5f5;">
         <tr>
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Tanggal</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Nama Gereja</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pimpinan Pujian</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tempat Doa</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pimpin Pujian</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Aksi</th>
         </tr>

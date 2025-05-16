@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-  <h1>{{ isset($schedule) ? 'Edit' : 'Tambah' }} Jadwal Kunjungan Kaum Muda</h1>
+  <h1>{{ isset($schedule) ? 'Edit' : 'Tambah' }} Jadwal Perkunjungan Kaum Muda</h1>
 
   <div class="card" style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <form action="{{ isset($schedule) ? route('worship-schedules.youth-visit.update', $schedule->id) : route('worship-schedules.youth-visit.store') }}" 
@@ -79,7 +79,7 @@
 
       <div style="margin-bottom: 20px;">
         <label style="display: block; margin-bottom: 5px;">
-          Worship Leader
+          Pimpin Pujian
           <span style="color: #dc2626;">*</span>
         </label>
         <input
