@@ -18,10 +18,6 @@ class KeuanganController extends Controller
      */
     public function index(Request $request)
     {
-        if (!PermissionHelper::hasPermission('view', 'keuangan')) {
-            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
-        }
-
         $search = $request->input('search');
         
         $query = Keuangan::orderBy('tanggal', 'desc');

@@ -20,10 +20,6 @@ class JemaatController extends Controller
      */
     public function index(Request $request)
     {
-        if (!PermissionHelper::hasPermission('view', 'jemaat')) {
-            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
-        }
-
         $search = $request->input('search');
         
         $query = User::where('role', 'jemaat')

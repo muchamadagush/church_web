@@ -4,32 +4,22 @@
 <div style="max-width: 1200px; margin: 0 auto;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h1>Data Pengumuman</h1>
+    @if(\App\Helpers\PermissionHelper::hasPermission('create', 'pengumuman'))
     <a href="{{ route('pengumuman.create') }}" class="button-detail">+ Tambah Data</a>
+    @endif
   </div>
 
   <div style="margin-bottom: 20px; max-width: 400px;">
     <form action="{{ route('pengumuman.index') }}" method="GET">
       <div style="display: flex; gap: 10px;">
-        <input 
-          type="text" 
-          name="search" 
-          value="{{ $search ?? '' }}" 
-          placeholder="Cari pengumuman..." 
-          style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;"
-        >
-        <button 
-          type="submit" 
-          style="padding: 8px 16px; background-color: #c9a035; color: white; border: none; border-radius: 4px; cursor: pointer;"
-        >
+        <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari pengumuman..." style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;">
+        <button type="submit" style="padding: 8px 16px; background-color: #c9a035; color: white; border: none; border-radius: 4px; cursor: pointer;">
           Cari
         </button>
         @if(!empty($search))
-          <a 
-            href="{{ route('pengumuman.index') }}" 
-            style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; text-decoration: none; display: inline-block;"
-          >
-            Reset
-          </a>
+        <a href="{{ route('pengumuman.index') }}" style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; text-decoration: none; display: inline-block;">
+          Reset
+        </a>
         @endif
       </div>
     </form>

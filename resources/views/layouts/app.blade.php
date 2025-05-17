@@ -180,28 +180,26 @@
   <nav class="navbar">
     <ul>
       <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a></li>
-
-      @if(\App\Helpers\PermissionHelper::hasPermission('view', 'jemaat'))
+      
       <li><a href="{{ route('jemaat.index') }}" class="{{ request()->routeIs('jemaat.*') ? 'active' : '' }}">Jemaat</a></li>
-      @endif
-
-      @if(\App\Helpers\PermissionHelper::hasPermission('view', 'pengumuman'))
+      
       <li><a href="{{ route('pengumuman.index') }}" class="{{ request()->routeIs('pengumuman.*') ? 'active' : '' }}">Pengumuman</a></li>
-      @endif
 
       @if(\App\Helpers\PermissionHelper::hasPermission('view', 'worship-schedules'))
       <li><a href="{{ route('worship-schedules.index') }}" class="{{ request()->routeIs('worship-schedules.*') ? 'active' : '' }}">Jadwal Ibadah</a></li>
       @endif
 
-      @if(\App\Helpers\PermissionHelper::hasPermission('view', 'keuangan'))
       <li><a href="{{ route('keuangan.index') }}" class="{{ request()->routeIs('keuangan.*') ? 'active' : '' }}">Keuangan</a></li>
-      @endif
 
       <li><a href="{{ route('history') }}" class="{{ request()->routeIs('history') ? 'active' : '' }}">Sejarah</a></li>
 
       <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">Tentang Kami</a></li>
 
+      @auth
       <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
+      @else
+      <li><a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'active' : '' }}">Login</a></li>
+      @endauth
     </ul>
   </nav>
 

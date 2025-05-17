@@ -15,18 +15,29 @@ use App\Http\Controllers\ChristmasScheduleController;
 use App\Http\Controllers\YouthVisitScheduleController;
 use App\Http\Controllers\KeuanganController;
 
+// Public routes
+Route::get('/', [WorshipScheduleController::class, 'index'])->name('home');
+Route::get('/about', [App\Http\Controllers\AboutController::class, 'index'])->name('about');
+Route::get('/history', function () {
+    return view('history');
+})->name('history');
+
+// Add these public routes for the menu items we made public
+Route::get('/jemaat', [JemaatController::class, 'index'])->name('jemaat.index');
+Route::get('/pengumuman', [AnnouncementController::class, 'index'])->name('pengumuman.index');
+Route::get('/keuangan', [KeuanganController::class, 'index'])->name('keuangan.index');
+
 Auth::routes();
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::resource('churches', ChurchController::class);
-    Route::resource('jemaat', JemaatController::class, ['except' => ['show']]);
-    Route::resource('pengumuman', AnnouncementController::class)->parameters([
+    Route::resource('jemaat', JemaatController::class, ['except' => ['show', 'index']]);
+    Route::resource('pengumuman', AnnouncementController::class, ['except' => ['index']])->parameters([
         'pengumuman' => 'announcement'
     ]);
     
     // Keuangan Routes
-    Route::resource('keuangan', KeuanganController::class);
+    Route::resource('keuangan', KeuanganController::class, ['except' => ['index']]);
     Route::get('/keuangan-download', [KeuanganController::class, 'download'])->name('keuangan.download');
 
     Route::get('/jadwal', function () {
@@ -89,10 +100,3 @@ Route::middleware(['auth'])->group(function () {
     // Add this to your routes/web.php file
     Route::get('/jemaat/export', [App\Http\Controllers\JemaatController::class, 'export'])->name('jemaat.export');
 });
-
-// Public routes
-Route::get('/about', [App\Http\Controllers\AboutController::class, 'index'])->name('about');
-
-Route::get('/history', function () {
-    return view('history');
-})->name('history');
