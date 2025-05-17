@@ -16,7 +16,7 @@ use App\Http\Controllers\YouthVisitScheduleController;
 use App\Http\Controllers\KeuanganController;
 
 // Public routes
-Route::get('/', [WorshipScheduleController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [App\Http\Controllers\AboutController::class, 'index'])->name('about');
 Route::get('/history', function () {
     return view('history');
