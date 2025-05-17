@@ -197,6 +197,8 @@
       <li><a href="{{ route('keuangan.index') }}" class="{{ request()->routeIs('keuangan.*') ? 'active' : '' }}">Keuangan</a></li>
       @endif
 
+      <li><a href="{{ route('history') }}" class="{{ request()->routeIs('history') ? 'active' : '' }}">Sejarah</a></li>
+
       <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">Tentang Kami</a></li>
 
       <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>

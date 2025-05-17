@@ -92,3 +92,7 @@ Route::middleware(['auth'])->group(function () {
 
 // Public routes
 Route::get('/about', [App\Http\Controllers\AboutController::class, 'index'])->name('about');
+
+Route::get('/history', function () {
+    return view('history');
+})->name('history');
