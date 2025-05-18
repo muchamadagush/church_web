@@ -15,16 +15,16 @@ class ChurchGembalaSeeder extends Seeder
         // Define mapping of church names to gembala names
         $gembalas = [
             'GGP Bukit Zaitun Kole' => 'Pdt. Daniel Johni, S.Th',
-            'GGP Shalom Ne\'Me\'Se' => 'Pdt. Orva, S.Pd',
+            'GGP Shalom Ne`Me`Se' => 'Pdt. Orva, S.Pd',
             'GGP Solagratia Tiroan' => 'Pdp. Matius Leppang',
             'GGP El-Shadday Ratte' => 'Pdp. Yuni Datu Maling',
-            'GGP Benteng Batu' => 'Pdt. Thomas Tappi\'',
-            'GGP Getsemani Bu\'Buk' => 'Pdm. Andarias Minggu',
-            'GGP Anugrah Salu Baruppu\'' => 'Pdt. Semuel Soni\', S.Th',
-            'GGP Salurea' => 'Pdt. Andarias Layuk Langi\', S.Th',
-            'GGP Pa\'Kappan' => 'Ibu Elisabeth Toding Mangatta',
-            'GGP Lembah Pujian To\'Lemo' => 'Pdm. Mesakh Bennu, S.Th',
-            'GGP Imanuel Ratte' => 'Ibu Rina Tappi\''
+            'GGP Benteng Batu' => 'Pdt. Thomas Tappi`',
+            'GGP Getsemani Bu`Buk' => 'Pdm. Andarias Minggu',
+            'GGP Anugrah Salu Baruppu`' => 'Pdt. Semuel Soni`, S.Th',
+            'GGP Salurea' => 'Pdt. Andarias Layuk Langi`, S.Th',
+            'GGP Pa`Kappan' => 'Ibu Elisabeth Toding Mangatta',
+            'GGP Lembah Pujian To`Lemo' => 'Pdm. Mesakh Bennu, S.Th',
+            'GGP Imanuel Ratte' => 'Ibu Rina Tappi`'
         ];
 
         $churches = Church::all();
@@ -34,7 +34,7 @@ class ChurchGembalaSeeder extends Seeder
             $gembalaName = $gembalas[$church->name] ?? 'Gembala ' . $church->name;
             
             // Generate username and email in the original format
-            $churchSlug = strtolower(str_replace(' ', '', $church->name));
+            $churchSlug = strtolower(str_replace(' ', '', $gembalas[$church->name]));
             $username = $churchSlug;
             $email = "gembala." . $churchSlug . "@church.com";
             
@@ -43,7 +43,7 @@ class ChurchGembalaSeeder extends Seeder
                 'username' => $username,
                 'fullname' => $gembalaName,
                 'email' => $email,
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'church_id' => $church->id,
                 'role' => 'gembala',
             ]);

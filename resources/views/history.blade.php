@@ -11,10 +11,10 @@
 
     <div style="text-align: justify; line-height: 1.6; margin-bottom: 40px; color: #333;">
       <p>
-        GGP Wilayah Baruppu' di Barereŋ Kec. Baruppu' Toraja Utara Sulawesi Selatan. Pada Tahun 1942 masuk ke Baruppu' yang di bawah oleh Alm. Yunus Pooŋetik, Alm. Liu Hasibuan dan Alm. Y. Massasaŋ. GGP ini berulah di Poŋglamba yang dipembalikan oleh Pdt. Sarŋo dan kemudian dipindahkan ke Pa'Kappan yang di gembalakan oleh Pdt. Arruŋ.
+        GGP Wilayah Baruppu’ di Barereng Kec. Baruppu’ Toraja Utara Sulawesi Selatan. Pada Tahun 1942 masuk ke Baruppu’ yang di bawah oleh Alm. Yunus Pongtasik, Alm. Lisu Hasibuan dan Alm. Y. Massang. GPP ini bermula di Ponglamba yang digembalakan oleh Pdt. Siang dan kemudian dipindahkan ke Pa’Kappan yang di gembalakan oleh Pdt. Arrung.
       </p>
       <p>
-        Seiring berjalannya waktu kini GGP Wilayah Baruppu' tersebut mengalami perkembangan, di bawah ini pimpinan ketua wilayah Pdt. FRITS NATUN, S.Th dan wakil I Pdt. DANIEL JOHNI, S.Th dan wakil II Pdm. MESAKH BENNU', S.Th dengan memiliki jumlah 212 Kepala Keluarga 1.035 Jiwa.
+        Seiring berjalannya waktu kini GGP Wilayah Baruppu’ tersebut mengalami perkembangan, di bawah pimpinan ketua wilayah Pdt. FRITS NATUN, S.Th dan wakil I Pdt. DANIEL JOHNI, S.Th dan wakil II Pdm. MESAKH BENNU’, S.Th dengan memiliki jumlah 212 Kepala Keluarga 1.035 Jiwa
       </p>
     </div>
 
@@ -24,15 +24,92 @@
     </h1>
 
     <div style="text-align: center; margin-bottom: 40px;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
-        <div style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
-          <img src="{{ asset('images/church2.svg') }}" alt="Interior Gereja 2" style="width: 100%; height: 250px; object-fit: cover; display: block;">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px;">
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/1.jpg') }}" alt="Interior Gereja 1" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
         </div>
-        <div style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
-          <img src="{{ asset('images/church1.svg') }}" alt="Interior Gereja 1" style="width: 100%; height: 250px; object-fit: cover; display: block;">
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/2.jpg') }}" alt="Interior Gereja 2" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/3.jpg') }}" alt="Kegiatan Gereja 1" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/4.jpg') }}" alt="Kegiatan Gereja 2" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/5.jpg') }}" alt="Kegiatan Gereja 3" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/6.jpg') }}" alt="Acara Gereja" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/7.jpg') }}" alt="Interior Gereja 1" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/8.jpg') }}" alt="Interior Gereja 2" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/9.jpg') }}" alt="Kegiatan Gereja 1" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/10.jpg') }}" alt="Kegiatan Gereja 2" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/11.jpg') }}" alt="Kegiatan Gereja 3" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/12.jpg') }}" alt="Acara Gereja" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/13.jpg') }}" alt="Kegiatan Gereja 2" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/14.jpg') }}" alt="Kegiatan Gereja 3" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
+        </div>
+        <div class="gallery-item" style="border-radius: 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+          <img src="{{ asset('images/15.jpg') }}" alt="Acara Gereja" style="width: 100%; height: 220px; object-fit: cover; display: block; cursor: pointer;" onclick="openModal(this.src)">
         </div>
       </div>
     </div>
+
+    <!-- Modal for image display -->
+    <div id="imageModal" style="display: none; position: fixed; z-index: 1000; padding-top: 50px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.9);">
+      <span class="close" style="position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer;">&times;</span>
+      <img id="modalImage" style="margin: auto; display: block; max-width: 90%; max-height: 80vh;">
+    </div>
+
+    <script>
+      function openModal(src) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        modal.style.display = "block";
+        modalImg.src = src;
+
+        // Add event listener to close when clicking outside the image
+        modal.addEventListener('click', function(event) {
+          if (event.target === modal || event.target.className === 'close') {
+            closeModal();
+          }
+        });
+      }
+
+      function closeModal() {
+        document.getElementById('imageModal').style.display = "none";
+      }
+
+      // Close modal when ESC key is pressed
+      document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") {
+          closeModal();
+        }
+      });
+
+      // Add close button event listener
+      document.querySelector('.close').addEventListener('click', closeModal);
+
+    </script>
+
   </div>
 
   <h1 style="text-align: center; color: #D4A44D; font-size: 28px; position: relative;">

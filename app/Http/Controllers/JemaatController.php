@@ -183,10 +183,30 @@ class JemaatController extends Controller
             }
         }
         
+        // Get church, pastor, and KK count data for the export
+        $churchInfo = null;
+        $pastorInfo = null;
+        $kkCount = 0;
+        
+        if ($churchId) {
+            $churchInfo = Church::find($churchId);
+            
+            // Find pastor (user with role 'gembala') for this church
+            $pastorInfo = User::where('role', 'gembala')
+                         ->where('church_id', $churchId)
+                         ->first();
+                         
+            // Count household heads (KK)
+            $kkCount = User::where('role', 'jemaat')
+                          ->where('church_id', $churchId)
+                          ->where('family_status', 'kepala_keluarga')
+                          ->count();
+        }
+        
         // Check if the current user is a gembala
         $isGembala = auth()->user()->role === 'gembala';
 
-        return Excel::download(new JemaatExport($search, $churchId, $isGembala), 'data-jemaat.xlsx');
+        return Excel::download(new JemaatExport($search, $churchId, $isGembala, $churchInfo, $pastorInfo, $kkCount), 'data-jemaat.xlsx');
     }
 
     public function show(User $jemaat)

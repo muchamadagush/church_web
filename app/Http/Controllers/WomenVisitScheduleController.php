@@ -7,6 +7,7 @@ use App\Models\WomenVisitSchedule;
 use Illuminate\Http\Request;
 use App\Helpers\PermissionHelper;
 use Illuminate\Support\Facades\DB;
+
 class WomenVisitScheduleController extends Controller
 {
     public function index()

@@ -37,6 +37,7 @@
     </div>
     @endif
 
+    @if(\App\Helpers\PermissionHelper::hasPermission('download', 'keuangan'))
     <div style="margin-left: auto;">
       <a href="{{ route('keuangan.download') }}" class="button-detail" style="border-radius: 25px; display: flex; align-items: center;">
         Download
@@ -47,6 +48,7 @@
         </svg>
       </a>
     </div>
+    @endif
   </div>
 
   @if(session('success'))

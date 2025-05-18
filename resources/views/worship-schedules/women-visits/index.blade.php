@@ -4,7 +4,7 @@
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h1>Data Jadwal Perkunjungan Kaum Wanita</h1>
-    @if(\App\Helpers\PermissionHelper::hasPermission('create', 'prayer-schedules'))
+    @if(\App\Helpers\PermissionHelper::hasPermission('create', 'worship-schedules'))
     <a href="{{ route('worship-schedules.women-visits.create') }}" class="button-detail">
       + Tambah Data
     </a>

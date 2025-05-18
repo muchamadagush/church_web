@@ -8,20 +8,32 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use DateTime;
 
-class JemaatExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class JemaatExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithTitle, WithCustomStartCell, WithEvents
 {
     protected $search;
     protected $churchId;
     protected $isGembala;
+    protected $churchInfo;
+    protected $pastorInfo;
+    protected $kkCount;
 
-    public function __construct($search = null, $churchId = null, $isGembala = false)
+    public function __construct($search = null, $churchId = null, $isGembala = false, $churchInfo = null, $pastorInfo = null, $kkCount = 0)
     {
         $this->search = $search;
         $this->churchId = $churchId;
         $this->isGembala = $isGembala;
+        $this->churchInfo = $churchInfo;
+        $this->pastorInfo = $pastorInfo;
+        $this->kkCount = $kkCount;
     }
     
     public function query()
@@ -48,6 +60,16 @@ class JemaatExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
         return $query;
     }
     
+    public function title(): string
+    {
+        return 'Data Jemaat';
+    }
+    
+    public function startCell(): string
+    {
+        return 'A6'; // Start actual data from row 6 to give space for the header info
+    }
+    
     public function headings(): array
     {
         $headings = [
@@ -64,7 +86,7 @@ class JemaatExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
             $headings[] = 'Usia';
         }
         
-        $headings[] = 'Gereja';
+        // Removed 'Gereja' column from headings
         
         return $headings;
     }
@@ -105,12 +127,6 @@ class JemaatExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
             $age = $ageYears . " (" . $category . ")";
         }
         
-        // More robust error handling for church name
-        $churchName = '-';
-        if ($jemaat->church) {
-            $churchName = $jemaat->church->name;
-        }
-        
         $data = [
             $rowNumber,
             $status,
@@ -125,7 +141,7 @@ class JemaatExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
             $data[] = $age;
         }
         
-        $data[] = $churchName;
+        // Removed church name from data array
         
         return $data;
     }
@@ -133,7 +149,49 @@ class JemaatExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
     public function styles(Worksheet $sheet)
     {
         return [
-            1 => ['font' => ['bold' => true]],
+            1 => ['font' => ['bold' => true, 'size' => 14]],
+            2 => ['font' => ['bold' => true]],
+            3 => ['font' => ['bold' => true]],
+            4 => ['font' => ['bold' => true]],
+            6 => ['font' => ['bold' => true]],
+        ];
+    }
+    
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                // Add church info header
+                $churchName = $this->churchInfo ? $this->churchInfo->name : 'Tidak tersedia';
+                $pastorName = $this->pastorInfo ? $this->pastorInfo->fullname : 'Tidak tersedia';
+                $kkCount = $this->kkCount;
+                
+                $sheet = $event->sheet->getDelegate();
+                
+                $sheet->setCellValue('A1', 'DATA JEMAAT');
+                $sheet->mergeCells('A1:G1');
+                
+                $sheet->setCellValue('A2', 'Nama Gereja:');
+                $sheet->setCellValue('C2', $churchName);
+                
+                $sheet->setCellValue('A3', 'Nama Gembala');
+                $sheet->setCellValue('C3', $pastorName);
+                
+                $sheet->setCellValue('A4', 'Jumlah KK');
+                $sheet->setCellValue('C4', $kkCount);
+                
+                // Set alignment
+                $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('A1:G1')->getFont()->setBold(true)->setSize(16);
+                
+                // Add some styling to header
+                $sheet->getStyle('A1:G1')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('D4A44D');
+                $sheet->getStyle('A1:G1')->getFont()->getColor()->setRGB('FFFFFF');
+                
+                // For the church info rows
+                $sheet->getStyle('A2:A4')->getFont()->setBold(true);
+                $sheet->getStyle('C2:C4')->getFont()->setBold(false);
+            }
         ];
     }
 }

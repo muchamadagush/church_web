@@ -6,6 +6,7 @@ use App\Models\YouthVisitSchedule;
 use App\Models\Church;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Helpers\PermissionHelper;
 
 class YouthVisitScheduleController extends Controller
 {
@@ -17,7 +18,11 @@ class YouthVisitScheduleController extends Controller
     public function index()
     {
         $schedules = YouthVisitSchedule::with('church')->orderBy('schedule_date', 'asc')->get();
-        return view('worship-schedules.youth-visit.index', compact('schedules'));
+
+        $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
+        $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
+
+        return view('worship-schedules.youth-visit.index', compact('schedules', 'canEdit', 'canDelete'));
     }
 
     /**

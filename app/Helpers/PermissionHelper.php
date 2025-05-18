@@ -47,7 +47,7 @@ class PermissionHelper
             }
             
             if ($module === 'keuangan') {
-                return in_array($action, ['view', 'download']);
+                return in_array($action, ['view']);
             }
             
             if ($module === 'pengumuman' && $action === 'view') {

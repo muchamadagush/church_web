@@ -10,17 +10,17 @@ class ChurchSeeder extends Seeder
     public function run()
     {
         $churches = [
-            ['name' => 'GGP Bukit Zaitun Kde'],
-            ['name' => 'GGP Shalom Ne`Me`se'],
-            ['name' => 'GGP Solaqraya Tiroan'],
+            ['name' => 'GGP Bukit Zaitun Kole'],
+            ['name' => 'GGP Shalom Ne`Me`Se'],
+            ['name' => 'GGP Solagratia Tiroan'],
             ['name' => 'GGP El-Shadday Ratte'],
             ['name' => 'GGP Benteng Batu'],
             ['name' => 'GGP Getsemani Bu`Buk'],
             ['name' => 'GGP Anugrah Salu Baruppu`'],
             ['name' => 'GGP Salurea'],
-            ['name' => 'GGP Pa`Kappuan'],
+            ['name' => 'GGP Pa`Kappan'],
             ['name' => 'GGP Lembah Pujian To`Lemo'],
-            ['name' => 'GGP Immanuel Ratte'],
+            ['name' => 'GGP Imanuel Ratte'],
         ];
 
         DB::table('churches')->insert($churches);

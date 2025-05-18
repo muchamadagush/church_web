@@ -16,9 +16,10 @@
             <div style="margin-bottom: 40px;">
                 <h2 style="color: #ffc107; font-size: 24px; font-weight: bold; margin-bottom: 20px; position: relative; display: inline-block;">MISI</h2>
                 <div style="width: 60px; height: 3px; background-color: #ffc107; margin: 0 auto 20px auto;"></div>
+                
                 <div style="margin-top: 20px; margin: 0 auto;">
                     <p style="margin-bottom: 10px; line-height: 1.6;">1. Membangun Persekutuan yang Hidup dan Nyata</p>
-                    <p style="margin-bottom: 10px; line-height: 1.6;">2. Mengaktualisasikan Penyembahan yang Benar, Menjangkau, dan Memuridkan Orang</p>
+                    <p style="margin-bottom: 10px; line-height: 1.6;">2. Mengaktulisasikan Penyembahan yang Benar, Wajar, Indah, Meriah dan Penuh Kuasa</p>
                     <p style="margin-bottom: 10px; line-height: 1.6;">3. Mengoptimalkan Pembinaan yang Cukup dan Merata serta Berkesinambungan</p>
                     <p style="margin-bottom: 10px; line-height: 1.6;">4. Meningkatkan Penginjilan ke Dalam dan Keluar</p>
                     <p style="margin-bottom: 10px; line-height: 1.6;">5. Menciptakan Pengelolaan yang Baik dan Rohani</p>
@@ -39,7 +40,7 @@
                 <div style="margin-top: 20px;">
                     <h3 style="font-size: 22px; margin-bottom: 15px; font-weight: bold;">"Exceed"</h3>
                     <p style="margin-top: 20px; font-weight: 500;">2 Korintus 8:3</p>
-                    <p style="margin-bottom: 10px; line-height: 1.6;">Aku bersaksi, bahwa mereka telah memberikan menurut kemampuan mereka, bahkan melampaui kemampuan mereka</p>
+                    <p style="margin-bottom: 10px; line-height: 1.6;">"Aku bersaksi, bahwa mereka telah memberikan menurut kemampuan mereka, bahkan melampaui kemampuan mereka"</p>
                 </div>
             </div>
             </div>
