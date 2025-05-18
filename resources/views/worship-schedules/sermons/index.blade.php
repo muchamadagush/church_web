@@ -4,7 +4,9 @@
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h1 style="color: #333; margin: 0;">Jadwal Pertukaran Khotbah</h1>
+    @if(\App\Helpers\PermissionHelper::hasPermission('create', 'worship-schedules'))
     <a href="{{ route('worship-schedules.sermons.create') }}" class="button-detail">+ Tambah Data</a>
+    @endif
   </div>
 
   @if(session('success'))
@@ -20,7 +22,9 @@
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">No</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Jadwal Khotbah</th>
+          @if($canEdit || $canDelete)
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6; width: 150px;">Aksi</th>
+          @endif
         </tr>
       </thead>
       <tbody>
@@ -41,6 +45,7 @@
               @endforeach
             </div>
           </td>
+          @if($canEdit || $canDelete)
           <td style="padding: 15px; text-align: center; vertical-align: top;">
             <div style="display: flex; gap: 5px;">
               <a href="{{ route('worship-schedules.sermons.edit', $schedule->id) }}" style="background: #ff9f43; color: white; border: none; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block; font-size: 14px;">
@@ -51,6 +56,7 @@
               </button>
             </div>
           </td>
+          @endif
         </tr>
         @empty
         <tr>

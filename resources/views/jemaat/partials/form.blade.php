@@ -21,16 +21,12 @@
       @method('PUT')
       @endif
 
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px;">
-          Username
-          <span style="color: #dc2626;">*</span>
-        </label>
-        <input type="text" name="username" value="{{ old('username', $jemaat->username ?? '') }}" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-        @error('username')
-        <span style="color: #dc2626; font-size: 0.875em;">{{ $message }}</span>
-        @enderror
-      </div>
+      <!-- Removed hidden username field to let it be null -->
+      
+      <!-- Hidden password field if creating new user -->
+      @if(!isset($jemaat))
+      <input type="hidden" name="password" value="password123">
+      @endif
 
       <div style="margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 5px;">
@@ -43,18 +39,16 @@
         @enderror
       </div>
 
-      @if(!isset($jemaat))
       <div style="margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 5px;">
-          Password
+          Tempat Lahir
           <span style="color: #dc2626;">*</span>
         </label>
-        <input type="password" name="password" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-        @error('password')
+        <input type="text" name="birthplace" value="{{ old('birthplace', $jemaat->birthplace ?? '') }}" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+        @error('birthplace')
         <span style="color: #dc2626; font-size: 0.875em;">{{ $message }}</span>
         @enderror
       </div>
-      @endif
 
       <div style="margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 5px;">
@@ -63,6 +57,42 @@
         </label>
         <input type="text" id="datepicker-input" name="dateofbirth" value="{{ old('dateofbirth', isset($jemaat) ? $jemaat->dateofbirth : '') }}" required readonly style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; cursor: pointer;">
         @error('dateofbirth')
+        <span style="color: #dc2626; font-size: 0.875em;">{{ $message }}</span>
+        @enderror
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px;">
+          Jenis Kelamin
+          <span style="color: #dc2626;">*</span>
+        </label>
+        <div style="display: flex; gap: 20px; padding: 10px 0;">
+          <div style="display: flex; align-items: center;">
+            <input type="radio" id="gender-male" name="gender" value="male" {{ old('gender', $jemaat->gender ?? '') == 'male' ? 'checked' : '' }} required>
+            <label for="gender-male" style="margin-left: 8px;">Laki-laki</label>
+          </div>
+          <div style="display: flex; align-items: center;">
+            <input type="radio" id="gender-female" name="gender" value="female" {{ old('gender', $jemaat->gender ?? '') == 'female' ? 'checked' : '' }}>
+            <label for="gender-female" style="margin-left: 8px;">Perempuan</label>
+          </div>
+        </div>
+        @error('gender')
+        <span style="color: #dc2626; font-size: 0.875em;">{{ $message }}</span>
+        @enderror
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px;">
+          Status Hubungan Keluarga
+          <span style="color: #dc2626;">*</span>
+        </label>
+        <select name="family_status" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+          <option value="">Pilih Status</option>
+          <option value="kepala_keluarga" {{ old('family_status', $jemaat->family_status ?? '') == 'kepala_keluarga' ? 'selected' : '' }}>Ayah</option>
+          <option value="istri" {{ old('family_status', $jemaat->family_status ?? '') == 'istri' ? 'selected' : '' }}>Istri</option>
+          <option value="anak" {{ old('family_status', $jemaat->family_status ?? '') == 'anak' ? 'selected' : '' }}>Anak</option>
+        </select>
+        @error('family_status')
         <span style="color: #dc2626; font-size: 0.875em;">{{ $message }}</span>
         @enderror
       </div>

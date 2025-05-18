@@ -5,13 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\PrayerSchedule;
 use Illuminate\Http\Request;
 use App\Models\Church;
+use App\Helpers\PermissionHelper;
 
 class PrayerScheduleController extends Controller
 {
     public function index()
     {
         $schedules = PrayerSchedule::orderBy('tanggal')->get();
-        return view('worship-schedules.prayer-schedules.index', compact('schedules'));
+
+        $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
+        $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
+
+        return view('worship-schedules.prayer-schedules.index', compact('schedules', 'canEdit', 'canDelete'));
     }
 
     public function create()

@@ -31,6 +31,7 @@
   </div>
   @endif
 
+  @if(\App\Helpers\PermissionHelper::hasPermission('view', 'keuangan'))
   <div class="card" style="display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 20px;">
     <img src="{{ asset('images/finance.svg') }}" alt="Jadwal Ibadah" class="icon" style="width: 100px; height: 100px;">
     <div>
@@ -39,6 +40,7 @@
       <a href="{{ route('keuangan.index') }}" class="button-detail">Lihat Detail</a>
     </div>
   </div>
+  @endif
 
   <div class="card" style="display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 20px;">
     <img src="{{ asset('images/history.png') }}" alt="Jadwal Ibadah" class="icon" style="width: 100px; height: 100px;">

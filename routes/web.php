@@ -15,6 +15,10 @@ use App\Http\Controllers\ChristmasScheduleController;
 use App\Http\Controllers\YouthVisitScheduleController;
 use App\Http\Controllers\KeuanganController;
 
+// Jemaat login routes
+Route::get('/jemaat/login', [App\Http\Controllers\Auth\JemaatLoginController::class, 'showLoginForm'])->name('jemaat.login');
+Route::post('/jemaat/login', [App\Http\Controllers\Auth\JemaatLoginController::class, 'login'])->name('jemaat.login.submit');
+
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [App\Http\Controllers\AboutController::class, 'index'])->name('about');

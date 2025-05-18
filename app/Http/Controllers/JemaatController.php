@@ -21,11 +21,20 @@ class JemaatController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $churchId = $request->input('church_id');
+        
+        // Get churches for filter dropdown
+        $churches = Church::all();
+        
+        // If no church_id provided and churches exist, use the first one as default
+        if (!$churchId && $churches->count() > 0) {
+            $churchId = $churches->first()->id;
+        }
         
         $query = User::where('role', 'jemaat')
                     ->orderBy('created_at', 'desc');
         
-        // Apply search filter if search parameter exists
+        // Apply search filter
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('username', 'like', '%' . $search . '%')
@@ -34,14 +43,45 @@ class JemaatController extends Controller
             });
         }
         
-        $jemaats = $query->paginate(10);
-        
-        // Append search parameter to pagination links
-        if ($search) {
-            $jemaats->appends(['search' => $search]);
+        // Apply church filter (now always applied since we have a default)
+        if ($churchId) {
+            $query->where('church_id', $churchId);
         }
         
-        return view('jemaat.index', compact('jemaats', 'search'));
+        $jemaats = $query->paginate(10);
+        
+        // Append parameters to pagination links
+        if ($search || $churchId) {
+            $jemaats->appends([
+                'search' => $search,
+                'church_id' => $churchId
+            ]);
+        }
+        
+        // Get current church info for note section
+        $currentChurch = null;
+        $pastor = null;
+        $kkCount = 0;
+        
+        if ($churchId) {
+            $currentChurch = Church::find($churchId);
+            
+            // Find pastor (user with role 'gembala') for this church
+            $pastor = User::where('role', 'gembala')
+                         ->where('church_id', $churchId)
+                         ->first();
+                         
+            // Count household heads (KK)
+            $kkCount = User::where('role', 'jemaat')
+                          ->where('church_id', $churchId)
+                          ->where('family_status', 'kepala_keluarga')
+                          ->count();
+        }
+
+        $canEdit = PermissionHelper::hasPermission('edit', 'jemaat');
+        $canDelete = PermissionHelper::hasPermission('delete', 'jemaat');
+
+        return view('jemaat.index', compact('jemaats', 'search', 'churches', 'currentChurch', 'pastor', 'kkCount', 'churchId', 'canEdit', 'canDelete'));
     }
 
     public function create()
@@ -61,11 +101,14 @@ class JemaatController extends Controller
         }
 
         $validated = $request->validate([
-            'username' => 'required|unique:users',
+            'username' => 'nullable|unique:users',
             'fullname' => 'required',
             'email' => 'nullable|email|unique:users',
-            'password' => 'required|min:6',
+            'password' => 'nullable|min:6',
             'dateofbirth' => 'required',
+            'birthplace' => 'required',
+            'gender' => 'required|in:male,female',
+            'family_status' => 'required',
             'address' => 'required',
             'church_id' => 'required|exists:churches,id'
         ]);
@@ -96,10 +139,13 @@ class JemaatController extends Controller
         }
 
         $request->validate([
-            'username' => 'required|string|max:255',
+            'username' => 'nullable|string|max:255', // Changed from required to nullable
             'fullname' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
             'dateofbirth' => 'required|date',
+            'birthplace' => 'required|string',
+            'gender' => 'required|in:male,female',
+            'family_status' => 'required|string',
             'address' => 'required|string',
             'church_id' => 'required|exists:churches,id',
         ]);
@@ -120,13 +166,27 @@ class JemaatController extends Controller
         return redirect()->route('jemaat.index')->with('success', 'Jemaat berhasil dihapus');
     }
 
-    public function export() 
+    public function export(Request $request) 
     {
         if (!PermissionHelper::hasPermission('download', 'jemaat')) {
             return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
 
-        return Excel::download(new JemaatExport, 'data-jemaat.xlsx');
+        $search = $request->input('search');
+        $churchId = $request->input('church_id');
+        
+        // If no church_id provided and churches exist, use the first one as default
+        if (!$churchId) {
+            $firstChurch = Church::first();
+            if ($firstChurch) {
+                $churchId = $firstChurch->id;
+            }
+        }
+        
+        // Check if the current user is a gembala
+        $isGembala = auth()->user()->role === 'gembala';
+
+        return Excel::download(new JemaatExport($search, $churchId, $isGembala), 'data-jemaat.xlsx');
     }
 
     public function show(User $jemaat)

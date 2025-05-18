@@ -9,27 +9,30 @@
     @endif
   </div>
 
-  <div style="margin-bottom: 20px; max-width: 400px;">
-    <form action="{{ route('pengumuman.index') }}" method="GET">
-      <div style="display: flex; gap: 10px;">
-        <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari pengumuman..." style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;">
-        <button type="submit" style="padding: 8px 16px; background-color: #c9a035; color: white; border: none; border-radius: 4px; cursor: pointer;">
-          Cari
-        </button>
-        @if(!empty($search))
-        <a href="{{ route('pengumuman.index') }}" style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; text-decoration: none; display: inline-block;">
-          Reset
-        </a>
-        @endif
-      </div>
-    </form>
-  </div>
+  <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+    <div style="flex: 1; max-width: 350px;">
+      <form action="{{ route('pengumuman.index') }}" method="GET" id="searchForm">
+        <div style="position: relative;">
+          <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari pengumuman..." style="width: 100%; padding: 10px 40px 10px 15px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box; font-size: 14px;">
+          <button type="submit" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
 
-  @if(!empty($search) && $announcements->isEmpty())
-  <div style="text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 20px;">
-    <p>Tidak ada pengumuman dengan judul "<strong>{{ $search }}</strong>"</p>
+    <!-- Reset Button -->
+    @if(!empty($search))
+    <div>
+      <a href="{{ route('pengumuman.index') }}" style="padding: 10px 20px; background-color: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 25px; text-decoration: none; display: inline-block;">
+        Reset Filter
+      </a>
+    </div>
+    @endif
   </div>
-  @endif
 
   @if(session('success'))
   <div style="background: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
@@ -45,7 +48,9 @@
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Judul Pengumuman</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal Pengumuman</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Banner</th>
+          @if($canEdit || $canDelete)
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Aksi</th>
+          @endif
         </tr>
       </thead>
       <tbody>
@@ -62,6 +67,7 @@
             No Banner
             @endif
           </td>
+          @if($canEdit || $canDelete)
           <td style="padding: 15px; text-align: center;">
             <a href="{{ route('pengumuman.edit', $announcement->id) }}" style="background: #ff9f43; color: white; border: none; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block; font-size: 14px;">
               Ubah
@@ -70,6 +76,7 @@
               Hapus
             </button>
           </td>
+          @endif
         </tr>
         @endforeach
         @else

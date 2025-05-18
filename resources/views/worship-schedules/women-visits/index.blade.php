@@ -4,9 +4,11 @@
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h1>Data Jadwal Perkunjungan Kaum Wanita</h1>
+    @if(\App\Helpers\PermissionHelper::hasPermission('create', 'prayer-schedules'))
     <a href="{{ route('worship-schedules.women-visits.create') }}" class="button-detail">
       + Tambah Data
     </a>
+    @endif
   </div>
 
   @if(session('success'))
@@ -24,7 +26,9 @@
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tempat Pelayanan</th></th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pimpin Pujian</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>
+          @if($canEdit || $canDelete)
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Aksi</th>
+          @endif
         </tr>
       </thead>
       <tbody>
@@ -35,6 +39,7 @@
           <td style="padding: 15px;">{{ $schedule->church->name }}</td>
           <td style="padding: 15px;">{{ $schedule->worship_leader }}</td>
           <td style="padding: 15px;">{{ $schedule->preacher }}</td>
+          @if($canEdit || $canDelete)
           <td style="padding: 15px; text-align: center;">
             <a href="{{ route('worship-schedules.women-visits.edit', $schedule->id) }}" style="background: #ff9f43; color: white; border: none; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block; font-size: 14px;">
               Ubah
@@ -43,6 +48,7 @@
               Hapus
             </button>
           </td>
+          @endif
         </tr>
         @empty
         <tr>

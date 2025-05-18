@@ -178,6 +178,11 @@
                 </div>
                 <button type="submit">Masuk</button>
             </form>
+
+            <div style="display: flex; justify-content: center; margin-top: 15px; font-size: 14px;">
+                <a href="{{ route('jemaat.login') }}" style="color: #D4A44D; text-decoration: none;">Login sebagai Jemaat</a>
+            </div>
+
             <div class="copyright">
                 © Gereja Gerakan Pentakosta
             </div>

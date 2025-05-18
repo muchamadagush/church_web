@@ -7,13 +7,18 @@ use App\Models\SermonSchedule;
 use App\Models\SermonScheduleDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\PermissionHelper;
 
 class SermonScheduleController extends Controller
 {
     public function index()
     {
         $schedules = SermonSchedule::with(['churches', 'details'])->get();
-        return view('worship-schedules.sermons.index', compact('schedules'));
+
+        $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
+        $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
+        
+        return view('worship-schedules.sermons.index', compact('schedules', 'canEdit', 'canDelete'));
     }
 
     public function create()

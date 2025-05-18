@@ -189,7 +189,9 @@
       <li><a href="{{ route('worship-schedules.index') }}" class="{{ request()->routeIs('worship-schedules.*') ? 'active' : '' }}">Jadwal Ibadah</a></li>
       @endif
 
+      @if(\App\Helpers\PermissionHelper::hasPermission('view', 'keuangan'))
       <li><a href="{{ route('keuangan.index') }}" class="{{ request()->routeIs('keuangan.*') ? 'active' : '' }}">Keuangan</a></li>
+      @endif
 
       <li><a href="{{ route('history') }}" class="{{ request()->routeIs('history') ? 'active' : '' }}">Sejarah</a></li>
 

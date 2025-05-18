@@ -17,7 +17,7 @@ class ChurchSeeder extends Seeder
             ['name' => 'GGP Benteng Batu'],
             ['name' => 'GGP Getsemani Bu`Buk'],
             ['name' => 'GGP Anugrah Salu Baruppu`'],
-            ['name' => 'GGP Salirea'],
+            ['name' => 'GGP Salurea'],
             ['name' => 'GGP Pa`Kappuan'],
             ['name' => 'GGP Lembah Pujian To`Lemo'],
             ['name' => 'GGP Immanuel Ratte'],

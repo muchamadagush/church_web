@@ -13,37 +13,32 @@
     @endif
   </div>
 
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <div style="max-width: 500px;">
-      <form action="{{ route('keuangan.index') }}" method="GET">
-        <div style="display: flex; gap: 10px;">
-          <input 
-            type="text" 
-            name="search" 
-            value="{{ $search ?? '' }}" 
-            placeholder="Cari data keuangan..." 
-            style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;"
-          >
-          <button 
-            type="submit" 
-            style="padding: 8px 16px; background-color: #c9a035; color: white; border: none; border-radius: 4px; cursor: pointer;"
-          >
-            Cari
+  <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+    <div style="flex: 1; max-width: 350px;">
+      <form action="{{ route('keuangan.index') }}" method="GET" id="searchForm">
+        <div style="position: relative;">
+          <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari keuangan..." style="width: 100%; padding: 10px 40px 10px 15px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box; font-size: 14px;">
+          <button type="submit" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
           </button>
-          @if(!empty($search))
-          <a 
-            href="{{ route('keuangan.index') }}" 
-            style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; text-decoration: none; display: inline-block;"
-          >
-            Reset
-          </a>
-          @endif
         </div>
       </form>
     </div>
-    
+
+    <!-- Reset Button -->
+    @if(!empty($search))
     <div>
-      <a href="{{ route('keuangan.download') }}" class="button-detail">
+      <a href="{{ route('keuangan.index') }}" style="padding: 10px 20px; background-color: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 25px; text-decoration: none; display: inline-block;">
+        Reset Filter
+      </a>
+    </div>
+    @endif
+
+    <div style="margin-left: auto;">
+      <a href="{{ route('keuangan.download') }}" class="button-detail" style="border-radius: 25px; display: flex; align-items: center;">
         Download
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 8px;">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -71,7 +66,7 @@
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Kredit (Pengeluaran)</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Keterangan</th>
           @if($canEdit || $canDelete)
-          <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Action</th>
+          <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Aksi</th>
           @endif
         </tr>
       </thead>
@@ -83,16 +78,16 @@
           <td style="padding: 15px;">{{ date('d M Y', strtotime($item->tanggal)) }}</td>
           <td style="padding: 15px;">
             @if($item->debit)
-              <span style="color: #28a745; font-weight: 500;">Rp. {{ number_format($item->debit, 0, ',', '.') }}</span>
+            <span style="color: #28a745; font-weight: 500;">Rp. {{ number_format($item->debit, 0, ',', '.') }}</span>
             @else
-              -
+            -
             @endif
           </td>
           <td style="padding: 15px;">
             @if($item->kredit)
-              <span style="color: #dc3545; font-weight: 500;">Rp. {{ number_format($item->kredit, 0, ',', '.') }}</span>
+            <span style="color: #dc3545; font-weight: 500;">Rp. {{ number_format($item->kredit, 0, ',', '.') }}</span>
             @else
-              -
+            -
             @endif
           </td>
           <td style="padding: 15px;">{{ $item->keterangan }}</td>
@@ -100,11 +95,11 @@
           <td style="padding: 15px; text-align: center;">
             <div style="display: flex; gap: 5px; justify-content: center;">
               @if($canEdit)
-              <a href="{{ route('keuangan.edit', $item->id) }}" style="padding: 6px 10px; background: #ffc107; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Ubah</a>
+              <a href="{{ route('keuangan.edit', $item->id) }}" style="background: #ff9f43; color: white; border: none; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block; font-size: 14px;">Ubah</a>
               @endif
-              
+
               @if($canDelete)
-              <button onclick="showDeleteModal({{ $item->id }})" style="padding: 6px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Hapus</button>
+              <button onclick="showDeleteModal({{ $item->id }})" style="background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Hapus</button>
               @endif
             </div>
           </td>
@@ -186,6 +181,7 @@
       hideDeleteModal();
     }
   });
+
 </script>
 
 <style>
@@ -197,23 +193,23 @@
     margin: 20px 0;
     justify-content: center;
   }
-  
+
   .page-item {
     margin: 0 2px;
   }
-  
+
   .page-item.disabled .page-link {
     color: #6c757d;
     pointer-events: none;
     background-color: #fff;
     border-color: #dee2e6;
   }
-  
+
   .page-item.active .page-link {
     background-color: #c9a035;
     border-color: #c9a035;
   }
-  
+
   .page-link {
     position: relative;
     display: block;
@@ -225,12 +221,13 @@
     border: 1px solid #dee2e6;
     text-decoration: none;
   }
-  
+
   .page-link:hover {
     color: #333;
     background-color: #e9ecef;
     border-color: #dee2e6;
     text-decoration: none;
   }
+
 </style>
 @endsection

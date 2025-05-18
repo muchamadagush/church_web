@@ -6,6 +6,7 @@ use App\Models\Church;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\PermissionHelper;
 
 class AnnouncementController extends Controller
 {
@@ -33,7 +34,10 @@ class AnnouncementController extends Controller
             $announcements->appends(['search' => $search]);
         }
         
-        return view('pengumuman.index', compact('announcements', 'search'));
+        $canEdit = PermissionHelper::hasPermission('edit', 'pengumuman');
+        $canDelete = PermissionHelper::hasPermission('delete', 'pengumuman');
+
+        return view('pengumuman.index', compact('announcements', 'search', 'canEdit', 'canDelete'));
     }
 
     public function create()

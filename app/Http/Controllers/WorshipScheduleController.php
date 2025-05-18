@@ -17,7 +17,11 @@ class WorshipScheduleController extends Controller
     public function show()
     {
         $schedules = WorshipSchedule::with(['user', 'church'])->paginate(10);
-        return view('worship-schedules.sermons.index', compact('schedules'));
+
+        $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
+        $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
+
+        return view('worship-schedules.sermons.index', compact('schedules', 'canEdit', 'canDelete'));
     }
 
     public function create()

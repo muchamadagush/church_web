@@ -5,13 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Church;
 use App\Models\WomenVisitSchedule;
 use Illuminate\Http\Request;
-
+use App\Helpers\PermissionHelper;
+use Illuminate\Support\Facades\DB;
 class WomenVisitScheduleController extends Controller
 {
     public function index()
     {
         $schedules = WomenVisitSchedule::with('church')->orderBy('visit_date')->paginate(10);
-        return view('worship-schedules.women-visits.index', compact('schedules'));
+
+        $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
+        $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
+
+        return view('worship-schedules.women-visits.index', compact('schedules', 'canEdit', 'canDelete' ));
     }
 
     public function create()

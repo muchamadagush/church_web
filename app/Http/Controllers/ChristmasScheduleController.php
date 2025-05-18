@@ -6,6 +6,7 @@ use App\Models\ChristmasSchedule;
 use App\Models\Church;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Helpers\PermissionHelper;
 
 class ChristmasScheduleController extends Controller
 {
@@ -17,7 +18,11 @@ class ChristmasScheduleController extends Controller
     public function index()
     {
         $schedules = ChristmasSchedule::with('church')->orderBy('schedule_date', 'asc')->get();
-        return view('worship-schedules.christmas.index', compact('schedules'));
+
+        $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
+        $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
+
+        return view('worship-schedules.christmas.index', compact('schedules', 'canEdit', 'canDelete'));
     }
 
     /**
