@@ -173,6 +173,42 @@
     </div>
   </div>
 
+  <!-- Age Category Statistics -->
+  <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 style="color: #333; font-size: 18px; margin: 0;">Jumlah Jemaat Berdasarkan Kategori Usia</h3>
+      <a href="{{ route('jemaat.statistics') }}" class="button-detail" style="font-size: 14px; padding: 8px 15px; border-radius: 25px;">
+        Selengkapnya
+      </a>
+    </div>
+    
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
+      <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 8px; border-left: 4px solid #D4A44D; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="font-weight: bold; margin-bottom: 5px; color: #333;">Dewasa</div>
+        <div style="font-size: 24px; color: #D4A44D;">{{ $dewasaCount }} <span style="font-size: 14px; color: #666;">Orang</span></div>
+      </div>
+      
+      <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 8px; border-left: 4px solid #4839EB; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="font-weight: bold; margin-bottom: 5px; color: #333;">Pemuda</div>
+        <div style="font-size: 24px; color: #4839EB;">{{ $pemudaCount }} <span style="font-size: 14px; color: #666;">Orang</span></div>
+      </div>
+      
+      <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9f43; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="font-weight: bold; margin-bottom: 5px; color: #333;">Remaja</div>
+        <div style="font-size: 24px; color: #ff9f43;">{{ $remajaCount }} <span style="font-size: 14px; color: #666;">Orang</span></div>
+      </div>
+      
+      <div style="flex: 1; min-width: 200px; background: #fff; padding: 15px; border-radius: 8px; border-left: 4px solid #00d2d3; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="font-weight: bold; margin-bottom: 5px; color: #333;">Sekolah Minggu</div>
+        <div style="font-size: 24px; color: #00d2d3;">{{ $sekolahMingguCount }} <span style="font-size: 14px; color: #666;">Orang</span></div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 15px; text-align: right; color: #666;">
+      <strong>Total Jemaat:</strong> {{ $totalCount }} Orang
+    </div>
+  </div>
+
   <!-- Church & Gembala Info Note - Updated to use dynamic data -->
   <div style="padding: 10px 15px 10px 0; margin-top: 15px;">
     <div style="margin-bottom: 5px;"><strong>Keterangan:</strong></div>

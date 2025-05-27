@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Helpers\PermissionHelper;
+use DateTime;
 
 class JemaatController extends Controller
 {
@@ -76,12 +77,65 @@ class JemaatController extends Controller
                           ->where('church_id', $churchId)
                           ->where('family_status', 'kepala_keluarga')
                           ->count();
+                          
+            // Calculate age category statistics
+            $allJemaat = User::where('role', 'jemaat')
+                          ->where('church_id', $churchId)
+                          ->get();
+                          
+            $dewasaCount = 0;
+            $pemudaCount = 0;
+            $remajaCount = 0;
+            $sekolahMingguCount = 0;
+            $totalCount = 0;
+            
+            foreach($allJemaat as $jemaat) {
+                if($jemaat->dateofbirth) {
+                    $birthDate = new DateTime($jemaat->dateofbirth);
+                    $today = new DateTime('today');
+                    $age = $birthDate->diff($today)->y;
+                    $isParent = ($jemaat->family_status == 'kepala_keluarga' || $jemaat->family_status == 'istri');
+                    
+                    if($age >= 31 || $isParent) {
+                        $dewasaCount++;
+                    } elseif($age >= 18) {
+                        $pemudaCount++;
+                    } elseif($age >= 13) {
+                        $remajaCount++;
+                    } else {
+                        $sekolahMingguCount++;
+                    }
+                    $totalCount++;
+                }
+            }
+        } else {
+            // Initialize with zero if no church is selected
+            $dewasaCount = 0;
+            $pemudaCount = 0;
+            $remajaCount = 0;
+            $sekolahMingguCount = 0;
+            $totalCount = 0;
         }
 
         $canEdit = PermissionHelper::hasPermission('edit', 'jemaat');
         $canDelete = PermissionHelper::hasPermission('delete', 'jemaat');
 
-        return view('jemaat.index', compact('jemaats', 'search', 'churches', 'currentChurch', 'pastor', 'kkCount', 'churchId', 'canEdit', 'canDelete'));
+        return view('jemaat.index', compact(
+            'jemaats', 
+            'search', 
+            'churches', 
+            'currentChurch', 
+            'pastor', 
+            'kkCount', 
+            'churchId', 
+            'canEdit', 
+            'canDelete',
+            'dewasaCount',
+            'pemudaCount',
+            'remajaCount',
+            'sekolahMingguCount',
+            'totalCount'
+        ));
     }
 
     public function create()
@@ -212,5 +266,93 @@ class JemaatController extends Controller
     public function show(User $jemaat)
     {
         return redirect()->route('jemaat.index');
+    }
+
+    public function statistics()
+    {
+        // Get all churches for the table
+        $churches = Church::all();
+        $churchStats = [];
+        
+        // For each church, calculate gender and age categories
+        foreach($churches as $church) {
+            $jemaatData = User::where('role', 'jemaat')
+                            ->where('church_id', $church->id)
+                            ->get();
+            
+            // Initialize counters
+            $maleCount = 0;
+            $femaleCount = 0;
+            $maleDewasa = 0;
+            $femaleDewasa = 0;
+            $malePemuda = 0;
+            $femalePemuda = 0;
+            $maleRemaja = 0;
+            $femaleRemaja = 0;
+            $maleSMinggu = 0;
+            $femaleSMinggu = 0;
+            
+            foreach($jemaatData as $jemaat) {
+                if($jemaat->dateofbirth) {
+                    $birthDate = new DateTime($jemaat->dateofbirth);
+                    $today = new DateTime('today');
+                    $age = $birthDate->diff($today)->y;
+                    $isParent = ($jemaat->family_status == 'kepala_keluarga' || $jemaat->family_status == 'istri');
+                    
+                    // Count by gender
+                    if($jemaat->gender == 'male') {
+                        $maleCount++;
+                        
+                        // Count by age category (male)
+                        if($age >= 31 || $isParent) {
+                            $maleDewasa++;
+                        } elseif($age >= 18) {
+                            $malePemuda++;
+                        } elseif($age >= 13) {
+                            $maleRemaja++;
+                        } else {
+                            $maleSMinggu++;
+                        }
+                    } else {
+                        $femaleCount++;
+                        
+                        // Count by age category (female)
+                        if($age >= 31 || $isParent) {
+                            $femaleDewasa++;
+                        } elseif($age >= 18) {
+                            $femalePemuda++;
+                        } elseif($age >= 13) {
+                            $femaleRemaja++;
+                        } else {
+                            $femaleSMinggu++;
+                        }
+                    }
+                }
+            }
+            
+            // Store statistics for this church
+            $churchStats[] = [
+                'church' => $church,
+                'maleCount' => $maleCount,
+                'femaleCount' => $femaleCount,
+                'maleDewasa' => $maleDewasa,
+                'femaleDewasa' => $femaleDewasa,
+                'malePemuda' => $malePemuda,
+                'femalePemuda' => $femalePemuda,
+                'maleRemaja' => $maleRemaja,
+                'femaleRemaja' => $femaleRemaja,
+                'maleSMinggu' => $maleSMinggu,
+                'femaleSMinggu' => $femaleSMinggu,
+                'totalDewasa' => $maleDewasa + $femaleDewasa,
+                'totalPemuda' => $malePemuda + $femalePemuda,
+                'totalRemaja' => $maleRemaja + $femaleRemaja,
+                'totalSMinggu' => $maleSMinggu + $femaleSMinggu,
+                'totalMale' => $maleCount,
+                'totalFemale' => $femaleCount,
+                'total' => $maleCount + $femaleCount
+            ];
+        }
+        
+        return view('jemaat.statistics', compact('churchStats'));
     }
 }

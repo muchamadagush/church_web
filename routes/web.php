@@ -28,6 +28,7 @@ Route::get('/history', function () {
 
 // Add these public routes for the menu items we made public
 Route::get('/jemaat', [JemaatController::class, 'index'])->name('jemaat.index');
+Route::get('/jemaat/statistics', [JemaatController::class, 'statistics'])->name('jemaat.statistics');
 Route::get('/pengumuman', [AnnouncementController::class, 'index'])->name('pengumuman.index');
 Route::get('/keuangan', [KeuanganController::class, 'index'])->name('keuangan.index');
 
