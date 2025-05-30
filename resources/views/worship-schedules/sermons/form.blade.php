@@ -143,35 +143,11 @@
   function updateMonthOptions() {
     // Get all month select elements
     const monthSelects = document.querySelectorAll('select[name^="churches"][name$="[month]"]');
-    
-    // Track selected months and their corresponding elements
-    const selectedMonths = new Map();
-    
-    // First pass - gather all selected values
+
+    // Make all month options visible
     monthSelects.forEach(select => {
-      if (select.value && select.value !== '') {
-        selectedMonths.set(select.value, select);
-      }
-    });
-    
-    // Second pass - update available options in each select
-    monthSelects.forEach(select => {
-      // Store current selection
-      const currentValue = select.value;
-      
-      // Show/hide options based on selections
       Array.from(select.options).forEach(option => {
-        if (option.value === '' || option.value === currentValue) {
-          // Always show empty option and current selection
-          option.hidden = false;
-        } else {
-          // Only hide if selected in another dropdown in this form
-          const isSelectedElsewhere = selectedMonths.has(option.value) && 
-                                    selectedMonths.get(option.value) !== select;
-          
-          // We no longer hide based on database records
-          option.hidden = isSelectedElsewhere;
-        }
+        option.hidden = false;
       });
     });
   }
@@ -187,7 +163,7 @@
     churchIndex++;
   }
 
-  // Tambahkan ini di bagian <script> yang sudah ada
+  // Improved form validation
   document.getElementById('sermonForm').addEventListener('submit', function(e) {
     const entries = document.querySelectorAll('.schedule-entry');
     if (entries.length === 0) {
@@ -202,7 +178,28 @@
       alert('Mohon isi nama pengkhotbah');
       return false;
     }
-  });
 
+    // Validate each entry
+    let isValid = true;
+    entries.forEach((entry, index) => {
+      const churchSelect = entry.querySelector('select[name^="churches"][name$="[church_id]"]');
+      const monthSelect = entry.querySelector('select[name^="churches"][name$="[month]"]');
+      
+      if (!churchSelect.value) {
+        isValid = false;
+        alert(`Mohon pilih gereja untuk Jadwal #${index + 1}`);
+      }
+      
+      if (!monthSelect.value) {
+        isValid = false;
+        alert(`Mohon pilih bulan untuk Jadwal #${index + 1}`);
+      }
+    });
+
+    if (!isValid) {
+      e.preventDefault();
+      return false;
+    }
+  });
 </script>
 @endsection

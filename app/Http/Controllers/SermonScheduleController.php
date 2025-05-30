@@ -38,28 +38,14 @@ class SermonScheduleController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'pengkhotbah' => 'required|string|max:255',
-            'churches' => 'required|array',
-            'churches.*.church_id' => 'required|exists:churches,id',
-            'churches.*.month' => [
-                'required',
-                function ($attribute, $value, $fail) {
-                    // Check if this month is already used in another record
-                    $exists = SermonScheduleDetail::where('month', $value)
-                        ->when(request()->route('sermon'), function($query, $sermon) {
-                            return $query->where('sermon_schedule_id', '!=', $sermon);
-                        })
-                        ->exists();
-                    
-                    if ($exists) {
-                        $fail("Bulan $value sudah digunakan di jadwal lain.");
-                    }
-                }
-            ],
-        ]);
-
         try {
+            $validatedData = $request->validate([
+                'pengkhotbah' => 'required|string|max:255',
+                'churches' => 'required|array',
+                'churches.*.church_id' => 'required|exists:churches,id',
+                'churches.*.month' => 'required|string',
+            ]);
+
             DB::beginTransaction();
             
             $schedule = SermonSchedule::create([
@@ -80,6 +66,8 @@ class SermonScheduleController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error creating sermon schedule: ' . $e->getMessage());
+            \Log::error('Request data: ' . json_encode($request->all()));
+            
             return back()
                 ->withInput()
                 ->with('error', 'Gagal menyimpan jadwal: ' . $e->getMessage());
@@ -108,20 +96,7 @@ class SermonScheduleController extends Controller
             'pengkhotbah' => 'required|string',
             'churches' => 'required|array',
             'churches.*.church_id' => 'required|exists:churches,id',
-            'churches.*.month' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) use ($schedule) {
-                    // Check if this month is already used in another record
-                    $exists = SermonScheduleDetail::where('month', $value)
-                        ->where('sermon_schedule_id', '!=', $schedule->id)
-                        ->exists();
-                    
-                    if ($exists) {
-                        $fail("Bulan $value sudah digunakan di jadwal lain.");
-                    }
-                }
-            ]
+            'churches.*.month' => 'required|string', // Removed month uniqueness validation
         ]);
 
         try {
