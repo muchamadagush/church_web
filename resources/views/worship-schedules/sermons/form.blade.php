@@ -139,7 +139,7 @@
     updateMonthOptions();
   }
 
-  // Update the function to consider both form selections and database records
+  // Update the function to only prevent duplicates within the current form
   function updateMonthOptions() {
     // Get all month select elements
     const monthSelects = document.querySelectorAll('select[name^="churches"][name$="[month]"]');
@@ -165,15 +165,12 @@
           // Always show empty option and current selection
           option.hidden = false;
         } else {
-          // Hide if option is:
-          // 1. Selected in another dropdown
+          // Only hide if selected in another dropdown in this form
           const isSelectedElsewhere = selectedMonths.has(option.value) && 
                                     selectedMonths.get(option.value) !== select;
           
-          // 2. Already used in database (unless it's the current selection)
-          const isUsedInDatabase = existingUsedMonths.includes(option.value);
-                                  
-          option.hidden = isSelectedElsewhere || isUsedInDatabase;
+          // We no longer hide based on database records
+          option.hidden = isSelectedElsewhere;
         }
       });
     });
