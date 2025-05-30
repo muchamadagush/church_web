@@ -17,7 +17,7 @@ class YouthVisitScheduleController extends Controller
      */
     public function index()
     {
-        $schedules = YouthVisitSchedule::with('church')->orderBy('schedule_date', 'asc')->get();
+        $schedules = YouthVisitSchedule::with('church')->orderBy('schedule_date', 'asc')->paginate(10);
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');

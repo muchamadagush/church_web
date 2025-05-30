@@ -113,14 +113,23 @@
           Gereja
           <span style="color: #dc2626;">*</span>
         </label>
-        <select name="church_id" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-          <option value="">Pilih Gereja</option>
-          @foreach($churches as $church)
-          <option value="{{ $church->id }}" {{ old('church_id', $jemaat->church_id ?? '') == $church->id ? 'selected' : '' }}>
-            {{ $church->name }}
-          </option>
-          @endforeach
-        </select>
+        
+        @if(isset($isGembala) && $isGembala)
+          <!-- For gembala: hidden input with their church -->
+          <input type="hidden" name="church_id" value="{{ $churchId }}">
+          <input type="text" class="form-control" value="{{ $selectedChurch->name ?? 'Gereja tidak ditemukan' }}" readonly style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; background-color: #f8f9fa;">
+        @else
+          <!-- For admin: dropdown to select church -->
+          <select name="church_id" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            <option value="">Pilih Gereja</option>
+            @foreach($churches ?? [] as $church)
+            <option value="{{ $church->id }}" {{ old('church_id', $jemaat->church_id ?? '') == $church->id ? 'selected' : '' }}>
+              {{ $church->name }}
+            </option>
+            @endforeach
+          </select>
+        @endif
+        
         @error('church_id')
         <span style="color: #dc2626; font-size: 0.875em;">{{ $message }}</span>
         @enderror

@@ -13,7 +13,7 @@ class SermonScheduleController extends Controller
 {
     public function index()
     {
-        $schedules = SermonSchedule::with(['churches', 'details'])->get();
+        $schedules = SermonSchedule::with(['churches', 'details'])->paginate(10);
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');

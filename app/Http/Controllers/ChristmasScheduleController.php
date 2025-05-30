@@ -17,7 +17,7 @@ class ChristmasScheduleController extends Controller
      */
     public function index()
     {
-        $schedules = ChristmasSchedule::with('church')->orderBy('schedule_date', 'asc')->get();
+        $schedules = ChristmasSchedule::with('church')->orderBy('schedule_date', 'asc')->paginate(10);
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');

@@ -16,8 +16,8 @@
   @endif
 
   <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <table style="width: 100%; border-collapse: collapse; border-radius: 8px;">
-      <thead style="border-radius: 8px;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead style="background: #f0f0f0;">
         <tr style="background: #f8f9fa;">
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">No</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>
@@ -30,7 +30,7 @@
       <tbody>
         @forelse($schedules as $index => $schedule)
         <tr style="border-bottom: 1px solid #dee2e6;">
-          <td style="padding: 15px; text-align: left;">{{ $index + 1 }}</td>
+          <td style="padding: 15px; text-align: left;">{{ ($schedules->currentPage() - 1) * $schedules->perPage() + $index + 1 }}</td>
           <td style="padding: 15px; vertical-align: top;">
             <div style="font-weight: 500; color: #333;">{{ $schedule->pengkhotbah }}</div>
           </td>
@@ -60,11 +60,41 @@
         </tr>
         @empty
         <tr>
-          <td colspan="5" style="text-align: center; padding: 15px;">Belum Ada Data</td>
+          <td colspan="5" style="text-align: center; padding: 15px;">Tidak ada jadwal khotbah untuk bulan ini</td>
         </tr>
         @endforelse
       </tbody>
     </table>
+
+    <!-- Pagination -->
+    <div style="padding: 15px;">
+      @if(isset($schedules) && $schedules->hasPages())
+          <div class="pagination-container" style="display: flex; justify-content: center; margin-top: 20px;">
+              <ul style="display: flex; list-style: none; padding: 0; margin: 0; align-items: center;">
+                  <!-- Previous page link -->
+                  @if ($schedules->onFirstPage())
+                      <li style="margin: 0 5px;"><span style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; background-color: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6;">«</span></li>
+                  @else
+                      <li style="margin: 0 5px;"><a href="{{ $schedules->previousPageUrl() }}" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; background-color: #fff; color: #4839EB; text-decoration: none; border: 1px solid #dee2e6;">«</a></li>
+                  @endif
+
+                  <!-- Page numbers -->
+                  @foreach ($schedules->getUrlRange(1, $schedules->lastPage()) as $page => $url)
+                      <li style="margin: 0 5px;">
+                          <a href="{{ $url }}" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; {{ $page == $sermonSchedules->currentPage() ? 'background-color: #4839EB; color: #fff; border: 1px solid #4839EB;' : 'background-color: #fff; color: #4839EB; border: 1px solid #dee2e6;' }} text-decoration: none;">{{ $page }}</a>
+                      </li>
+                  @endforeach
+
+                  <!-- Next page link -->
+                  @if ($schedules->hasMorePages())
+                      <li style="margin: 0 5px;"><a href="{{ $schedules->nextPageUrl() }}" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; background-color: #fff; color: #4839EB; text-decoration: none; border: 1px solid #dee2e6;">»</a></li>
+                  @else
+                      <li style="margin: 0 5px;"><span style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; background-color: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6;">»</span></li>
+                  @endif
+              </ul>
+          </div>
+      @endif
+    </div>
   </div>
 </div>
 

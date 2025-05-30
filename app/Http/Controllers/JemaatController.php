@@ -24,16 +24,28 @@ class JemaatController extends Controller
         $search = $request->input('search');
         $churchId = $request->input('church_id');
         
-        // Get churches for filter dropdown
-        $churches = Church::all();
+        // Get current authenticated user
+        $user = auth()->user();
+        $isGembala = $user->role === 'gembala';
         
-        // If no church_id provided and churches exist, use the first one as default
-        if (!$churchId && $churches->count() > 0) {
-            $churchId = $churches->first()->id;
+        // If user is gembala, force churchId to be their church_id
+        if ($isGembala) {
+            $churchId = $user->church_id;
+        } else {
+            // If not gembala, get churches for filter dropdown
+            $churches = Church::all();
+            
+            // If no church_id provided and churches exist, use the first one as default
+            if (!$churchId && $churches->count() > 0) {
+                $churchId = $churches->first()->id;
+            }
         }
         
+        // Get churches only if not gembala (for dropdown)
+        $churches = $isGembala ? null : Church::all();
+        
         $query = User::where('role', 'jemaat')
-                    ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'asc');
         
         // Apply search filter
         if ($search) {
@@ -134,7 +146,8 @@ class JemaatController extends Controller
             'pemudaCount',
             'remajaCount',
             'sekolahMingguCount',
-            'totalCount'
+            'totalCount',
+            'isGembala'
         ));
     }
 
@@ -144,8 +157,21 @@ class JemaatController extends Controller
             return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
 
-        $churches = Church::all();
-        return view('jemaat.create', compact('churches'));
+        // Get current authenticated user
+        $user = auth()->user();
+        $isGembala = $user->role === 'gembala';
+        
+        // If user is gembala, we'll use their church_id
+        if ($isGembala) {
+            $churchId = $user->church_id;
+            $selectedChurch = Church::find($churchId);
+            
+            return view('jemaat.create', compact('isGembala', 'churchId', 'selectedChurch'));
+        } else {
+            // For admin, show all churches
+            $churches = Church::all();
+            return view('jemaat.create', compact('churches', 'isGembala'));
+        }
     }
 
     public function store(Request $request)
@@ -166,6 +192,12 @@ class JemaatController extends Controller
             'address' => 'required',
             'church_id' => 'required|exists:churches,id'
         ]);
+
+        // If user is gembala, override the church_id with their church_id
+        $user = auth()->user();
+        if ($user->role === 'gembala') {
+            $validated['church_id'] = $user->church_id;
+        }
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['role'] = 'jemaat';

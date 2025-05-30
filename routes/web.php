@@ -91,6 +91,7 @@ Auth::routes();
 Route::middleware(['auth'])->group(function () {
     Route::resource('churches', ChurchController::class);
     Route::resource('jemaat', JemaatController::class, ['except' => ['show']]);
+    Route::get('/jemaat/statistics', [JemaatController::class, 'statistics'])->name('jemaat.statistics');
     Route::resource('pengumuman', AnnouncementController::class, ['except' => ['index']])->parameters([
         'pengumuman' => 'announcement'
     ]);

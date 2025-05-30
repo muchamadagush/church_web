@@ -11,7 +11,7 @@ class PrayerScheduleController extends Controller
 {
     public function index()
     {
-        $schedules = PrayerSchedule::orderBy('tanggal')->get();
+        $schedules = PrayerSchedule::orderBy('tanggal')->paginate(10);
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');

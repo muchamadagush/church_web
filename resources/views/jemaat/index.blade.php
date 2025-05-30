@@ -34,7 +34,8 @@
         </form>
       </div>
 
-      <!-- Church Filter with clearer dropdown icon -->
+      <!-- Church Filter - Only show if not gembala -->
+      @if(!isset($isGembala) || !$isGembala)
       <div style="width: 250px; position: relative;">
         <select name="church_id" id="churchFilter" style="width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 25px; appearance: none; padding-right: 40px; background-color: white;">
           @foreach($churches ?? [] as $church)
@@ -49,9 +50,10 @@
           </svg>
         </div>
       </div>
+      @endif
 
-      <!-- Reset Button -->
-      @if(!empty($search) || request('church_id'))
+      <!-- Reset Button - Only show if not gembala or if there's a search -->
+      @if((!isset($isGembala) || !$isGembala) && (!empty($search) || request('church_id')))
       <div>
         <a href="{{ route('jemaat.index') }}" style="padding: 10px 20px; background-color: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 25px; text-decoration: none; display: inline-block;">
           Reset Filter
@@ -168,7 +170,30 @@
     </table>
     <div style="padding: 15px;">
       @if(isset($jemaats))
-      {{ $jemaats->links() }}
+        <div class="pagination-container" style="display: flex; justify-content: center; margin-top: 20px;">
+          <ul style="display: flex; list-style: none; padding: 0; margin: 0; align-items: center;">
+            <!-- Previous page link -->
+            @if ($jemaats->onFirstPage())
+              <li style="margin: 0 5px;"><span style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; background-color: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6;">«</span></li>
+            @else
+              <li style="margin: 0 5px;"><a href="{{ $jemaats->previousPageUrl() }}" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; background-color: #fff; color: #4839EB; text-decoration: none; border: 1px solid #dee2e6;">«</a></li>
+            @endif
+
+            <!-- Page numbers -->
+            @foreach ($jemaats->getUrlRange(1, $jemaats->lastPage()) as $page => $url)
+              <li style="margin: 0 5px;">
+                <a href="{{ $url }}" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; {{ $page == $jemaats->currentPage() ? 'background-color: #4839EB; color: #fff; border: 1px solid #4839EB;' : 'background-color: #fff; color: #4839EB; border: 1px solid #dee2e6;' }} text-decoration: none;">{{ $page }}</a>
+              </li>
+            @endforeach
+
+            <!-- Next page link -->
+            @if ($jemaats->hasMorePages())
+              <li style="margin: 0 5px;"><a href="{{ $jemaats->nextPageUrl() }}" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; background-color: #fff; color: #4839EB; text-decoration: none; border: 1px solid #dee2e6;">»</a></li>
+            @else
+              <li style="margin: 0 5px;"><span style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; border-radius: 4px; background-color: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6;">»</span></li>
+            @endif
+          </ul>
+        </div>
       @endif
     </div>
   </div>
@@ -177,9 +202,11 @@
   <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
       <h3 style="color: #333; font-size: 18px; margin: 0;">Jumlah Jemaat Berdasarkan Kategori Usia</h3>
-      <a href="{{ route('jemaat.index') }}" class="button-detail" style="font-size: 14px; padding: 8px 15px; border-radius: 25px;">
+      @if(!isset($isGembala) || !$isGembala)
+      <a href="{{ route('jemaat.statistics') }}" class="button-detail" style="font-size: 14px; padding: 8px 15px; border-radius: 25px;">
         Selengkapnya
       </a>
+      @endif
     </div>
     
     <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
@@ -256,7 +283,8 @@
     }
   });
 
-  // Add church filter auto-submit
+  // Add church filter auto-submit - Only include if church filter is shown
+  @if(!isset($isGembala) || !$isGembala)
   document.getElementById('churchFilter').addEventListener('change', function() {
     const searchForm = document.getElementById('searchForm');
     const searchValue = document.querySelector('input[name="search"]').value;
@@ -274,6 +302,6 @@
     
     searchForm.submit();
   });
-
+  @endif
 </script>
 @endsection
