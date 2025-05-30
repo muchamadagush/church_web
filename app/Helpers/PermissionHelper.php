@@ -34,7 +34,7 @@ class PermissionHelper
         // Gembala permissions
         if ($user->role === 'gembala') {
             if ($module === 'jemaat') {
-                return in_array($action, ['view', 'create', 'edit', 'delete', 'download']);
+                return in_array($action, ['view', 'create', 'edit', 'delete', 'download', 'age']);
             }
             
             return false;
