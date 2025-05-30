@@ -62,9 +62,10 @@
           <td style="padding: 15px;">{{ \Carbon\Carbon::parse($announcement->announcement_date)->format('d M Y') }}</td>
           <td style="padding: 15px;">
             @if($announcement->banner)
-            <img src="{{ asset('storage/' . $announcement->banner) }}" alt="Banner" style="max-width: 100px; max-height: 60px; object-fit: cover;">
+                <img src="{{ asset($announcement->banner) }}" alt="Banner" style="max-height: 100px; cursor: pointer;" 
+                     onclick="showImageModal('{{ asset($announcement->banner) }}', '{{ $announcement->title }}')" class="banner-thumbnail">
             @else
-            No Banner
+                No Banner
             @endif
           </td>
           @if($canEdit || $canDelete)
@@ -78,7 +79,11 @@
           </td>
           @endif
         </tr>
-        @endforeach
+        @empty
+        <tr>
+          <td colspan="4" style="padding: 15px; text-align: center;">Tidak ada data pengumuman</td>
+        </tr>
+        @endforelse
         @else
         <tr>
           <td colspan="4" style="padding: 15px; text-align: center;">Tidak ada data pengumuman</td>
@@ -115,6 +120,15 @@
   </div>
 </div>
 
+<!-- Image Modal -->
+<div id="imageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1050;">
+  <div style="position: relative; max-width: 90%; max-height: 90%;">
+    <button onclick="hideImageModal()" style="position: absolute; top: -40px; right: 0; background: transparent; border: none; color: white; font-size: 24px; cursor: pointer;">×</button>
+    <h3 id="imageTitle" style="color: white; text-align: center; margin-bottom: 15px;"></h3>
+    <img id="modalImage" src="" alt="Full Size Banner" style="max-width: 100%; max-height: 80vh; object-fit: contain; display: block; margin: 0 auto;">
+  </div>
+</div>
+
 <script>
   function showDeleteModal(id) {
     const modal = document.getElementById('deleteModal');
@@ -135,5 +149,26 @@
     }
   });
 
+  function showImageModal(imageUrl, title) {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const imageTitle = document.getElementById('imageTitle');
+    
+    modalImage.src = imageUrl;
+    imageTitle.textContent = title;
+    modal.style.display = 'flex';
+  }
+
+  function hideImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+  }
+
+  // Close image modal when clicking outside
+  document.getElementById('imageModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      hideImageModal();
+    }
+  });
 </script>
 @endsection

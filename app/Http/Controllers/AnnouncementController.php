@@ -7,6 +7,8 @@ use App\Models\Announcement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\PermissionHelper;
+use Illuminate\Support\Str;
+use File;
 
 class AnnouncementController extends Controller
 {
@@ -57,8 +59,21 @@ class AnnouncementController extends Controller
         $validated['user_id'] = auth()->id();
 
         if ($request->hasFile('banner')) {
-            $path = $request->file('banner')->store('announcements', 'public');
-            $validated['banner'] = $path;
+            // Create directory if it doesn't exist
+            $path = public_path('announcements');
+            if(!File::isDirectory($path)){
+                File::makeDirectory($path, 0777, true, true);
+            }
+            
+            // Generate unique filename
+            $file = $request->file('banner');
+            $fileName = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            
+            // Move the file to public/announcements
+            $file->move($path, $fileName);
+            
+            // Store the relative path for database
+            $validated['banner'] = 'announcements/' . $fileName;
         }
 
         Announcement::create($validated);
@@ -79,8 +94,26 @@ class AnnouncementController extends Controller
         ]);
 
         if ($request->hasFile('banner')) {
-            $path = $request->file('banner')->store('announcements', 'public');
-            $validated['banner'] = $path;
+            // Delete old file if exists
+            if ($announcement->banner && file_exists(public_path($announcement->banner))) {
+                unlink(public_path($announcement->banner));
+            }
+            
+            // Create directory if it doesn't exist
+            $path = public_path('announcements');
+            if(!File::isDirectory($path)){
+                File::makeDirectory($path, 0777, true, true);
+            }
+            
+            // Generate unique filename
+            $file = $request->file('banner');
+            $fileName = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            
+            // Move the file to public/announcements
+            $file->move($path, $fileName);
+            
+            // Store the relative path for database
+            $validated['banner'] = 'announcements/' . $fileName;
         }
 
         $announcement->update($validated);
@@ -90,8 +123,8 @@ class AnnouncementController extends Controller
     public function destroy(Announcement $announcement)
     {
         try {
-            if ($announcement->banner) {
-                Storage::disk('public')->delete($announcement->banner);
+            if ($announcement->banner && file_exists(public_path($announcement->banner))) {
+                unlink(public_path($announcement->banner));
             }
             
             $announcement->delete();
