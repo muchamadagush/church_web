@@ -177,7 +177,7 @@
   <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
       <h3 style="color: #333; font-size: 18px; margin: 0;">Jumlah Jemaat Berdasarkan Kategori Usia</h3>
-      <a href="{{ route('jemaat.statistics') }}" class="button-detail" style="font-size: 14px; padding: 8px 15px; border-radius: 25px;">
+      <a href="{{ route('jemaat.index') }}" class="button-detail" style="font-size: 14px; padding: 8px 15px; border-radius: 25px;">
         Selengkapnya
       </a>
     </div>

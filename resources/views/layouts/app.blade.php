@@ -181,13 +181,13 @@
     <ul>
       <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a></li>
       
+      @if(\App\Helpers\PermissionHelper::hasPermission('view', 'jemaat'))
       <li><a href="{{ route('jemaat.index') }}" class="{{ request()->routeIs('jemaat.*') ? 'active' : '' }}">Jemaat</a></li>
-      
+      @endif
+
       <li><a href="{{ route('pengumuman.index') }}" class="{{ request()->routeIs('pengumuman.*') ? 'active' : '' }}">Pengumuman</a></li>
 
-      @if(\App\Helpers\PermissionHelper::hasPermission('view', 'worship-schedules'))
       <li><a href="{{ route('worship-schedules.index') }}" class="{{ request()->routeIs('worship-schedules.*') ? 'active' : '' }}">Jadwal Ibadah</a></li>
-      @endif
 
       @if(\App\Helpers\PermissionHelper::hasPermission('view', 'keuangan'))
       <li><a href="{{ route('keuangan.index') }}" class="{{ request()->routeIs('keuangan.*') ? 'active' : '' }}">Keuangan</a></li>

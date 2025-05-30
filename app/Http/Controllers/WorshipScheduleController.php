@@ -6,6 +6,12 @@ use App\Models\WorshipSchedule;
 use App\Models\Church;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\SermonSchedule;
+use App\Models\PrayerSchedule;
+use App\Models\VisitSchedule;
+use App\Models\WomenVisitSchedule;
+use App\Models\ChristmasSchedule;
+use App\Models\YouthVisitSchedule;
 
 class WorshipScheduleController extends Controller
 {
@@ -83,5 +89,59 @@ class WorshipScheduleController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menghapus jadwal');
         }
+    }
+
+    /**
+     * Display worship schedules for public view (no authentication required)
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function publicIndex()
+    {
+        // Get current month and year
+        $month = date('m');
+        $year = date('Y');
+        
+        // Get all different types of schedules for the current month
+        $sermonSchedules = SermonSchedule::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date')
+            ->get();
+            
+        $prayerSchedules = PrayerSchedule::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date')
+            ->get();
+            
+        $visitSchedules = VisitSchedule::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date')
+            ->get();
+            
+        $womenVisitSchedules = WomenVisitSchedule::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date')
+            ->get();
+
+        $christmasSchedules = ChristmasSchedule::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date')
+            ->get();
+            
+        $youthVisitSchedules = YouthVisitSchedule::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date')
+            ->get();
+
+        return view('worship-schedules.public', compact(
+            'sermonSchedules',
+            'prayerSchedules',
+            'visitSchedules',
+            'womenVisitSchedules',
+            'christmasSchedules',
+            'youthVisitSchedules',
+            'month',
+            'year'
+        ));
     }
 }
