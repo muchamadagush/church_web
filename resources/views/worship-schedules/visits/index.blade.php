@@ -84,6 +84,12 @@
       @endif
     </div>
   </div>
+
+  <div style="padding: 10px 15px 10px 0; margin-top: 15px;">
+    <div style="margin-bottom: 5px;"><strong>Keterangan:</strong></div>
+    <div style="margin-bottom: 5px;">1. Jadwal ini sewaktu-waktu bisa berubah</div>
+    <div style="margin-bottom: 5px;">2. Bagi semua pelaksana tugas gembala untuk mempersiapkan bahan perjamuan kudus apabila ada anak-anak yang akan diserahkan pada saat perkunjungan dari ketua wilayah</div>
+  </div>
 </div>
 
 <!-- Delete Modal -->

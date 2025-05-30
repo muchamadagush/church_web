@@ -86,6 +86,12 @@
       @endif
     </div>
   </div>
+
+  <div style="padding: 10px 15px 10px 0; margin-top: 15px;">
+    <div style="margin-bottom: 5px;"><strong>Keterangan:</strong></div>
+    <div style="margin-bottom: 5px;">1. Jadwal Doa wilayah dilaksanakan pada jam 10.00 wita pagi</div>
+    <div style="margin-bottom: 5px;">2. Harap pelayan-pelayan memperhatikan tugas yang sudah ada di jadwal ini</div>
+  </div>
 </div>
 
 <!-- Delete Modal -->
