@@ -88,6 +88,12 @@
       @endif
     </div>
   </div>
+
+  <div style="padding: 10px 15px 10px 0; margin-top: 15px;">
+    <div style="margin-bottom: 5px;"><strong>Keterangan:</strong></div>
+    <div style="margin-bottom: 5px;">1. Semua Pelayan Altar Harus Memakai Pakaian Rapih dan Sopan (Memakai Rok)</div>
+    <div style="margin-bottom: 5px;">2. Jika Berhalangan Diharapkan Untuk Menghubungi Paling Lambat 3 Hari Sebelum Pelayanan Di Nomor (Martina Koto' : 081244831051) / (Sahra Pamo : 085314331854)</div>
+  </div>
 </div>
 
 <!-- Delete Modal -->

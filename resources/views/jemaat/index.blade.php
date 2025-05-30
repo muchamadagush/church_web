@@ -112,7 +112,7 @@
         @if(isset($jemaats) && count($jemaats) > 0)
         @foreach($jemaats as $index => $jemaat)
         <tr style="border-bottom: 1px solid #eee;">
-          <td style="padding: 15px; text-align: center;">{{ $index + 1 }}</td>
+          <td style="padding: 15px; text-align: center;">{{ ($jemaats->currentPage() - 1) * $jemaats->perPage() + $index + 1 }}</td>
           <td style="padding: 15px;">
             @if($jemaat->family_status == 'kepala_keluarga')
             Ayah

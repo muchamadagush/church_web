@@ -20,7 +20,7 @@ class KeuanganController extends Controller
     {
         $search = $request->input('search');
         
-        $query = Keuangan::orderBy('tanggal', 'desc');
+        $query = Keuangan::orderBy('tanggal', 'asc');
         
         // Apply search filter if search parameter exists
         if ($search) {
