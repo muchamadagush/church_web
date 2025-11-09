@@ -22,7 +22,7 @@
       <thead style="background: #f5f5f5;">
         <tr>
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">No</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal Perkunjungan</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Waktu Perkunjungan</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tempat Pelayanan</th>
           @if($canEdit || $canDelete)
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Aksi</th>
@@ -33,7 +33,9 @@
         @forelse($schedules as $index => $schedule)
         <tr>
           <td style="padding: 15px; text-align: center;">{{ ($schedules->currentPage() - 1) * $schedules->perPage() + $index + 1 }}</td>
-          <td style="padding: 15px;">{{ $schedule->visit_date->format('d F Y') }}</td>
+          <td style="padding: 15px;">
+            {{ $schedule->start_datetime->format('d F Y H:i') }} - {{ $schedule->end_datetime->format('d F Y H:i') }}
+          </td>
           <td style="padding: 15px;">{{ $schedule->church->name }}</td>
           @if($canEdit || $canDelete)
           <td style="padding: 15px; text-align: center;">

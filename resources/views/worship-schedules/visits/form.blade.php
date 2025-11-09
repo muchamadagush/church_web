@@ -12,6 +12,12 @@
   <h2>{{ isset($schedule) ? 'Edit' : 'Tambah' }} Jadwal Kunjungan Ketua Wilayah</h2>
 
   <div class="card" style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    @if($errors->has('schedule_conflict'))
+    <div style="background: #fee2e2; color: #dc2626; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
+      {{ $errors->first('schedule_conflict') }}
+    </div>
+    @endif
+
     <form action="{{ isset($schedule) ? route('worship-schedules.visits.update', $schedule->id) : route('worship-schedules.visits.store') }}" method="POST" style="width: 100%;">
       @csrf
       @if(isset($schedule)) @method('PUT') @endif
@@ -34,15 +40,28 @@
         @enderror
       </div>
 
-      <div style="margin-bottom: 15px;">
-        <label for="visit_date">
-          Tanggal Perkunjungan
-          <span style="color: #dc2626;">*</span>
-        </label>
-        <input type="text" id="datepicker-input" name="visit_date" value="{{ old('visit_date', isset($schedule) ? $schedule->visit_date->format('Y-m-d') : '') }}" required readonly style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; cursor: pointer;">
-        @error('visit_date')
-        <span style="color: red; font-size: 0.875em;">{{ $message }}</span>
-        @enderror
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div>
+          <label for="start_datetime">
+            Mulai (Tanggal & Waktu)
+            <span style="color: #dc2626;">*</span>
+          </label>
+          <input type="datetime-local" id="start_datetime" name="start_datetime" value="{{ old('start_datetime', isset($schedule) && $schedule->start_datetime ? $schedule->start_datetime->format('Y-m-d\TH:i') : '') }}" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+          @error('start_datetime')
+          <span style="color: red; font-size: 0.875em;">{{ $message }}</span>
+          @enderror
+        </div>
+
+        <div>
+          <label for="end_datetime">
+            Selesai (Tanggal & Waktu)
+            <span style="color: #dc2626;">*</span>
+          </label>
+          <input type="datetime-local" id="end_datetime" name="end_datetime" value="{{ old('end_datetime', isset($schedule) && $schedule->end_datetime ? $schedule->end_datetime->format('Y-m-d\TH:i') : '') }}" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+          @error('end_datetime')
+          <span style="color: red; font-size: 0.875em;">{{ $message }}</span>
+          @enderror
+        </div>
       </div>
 
       <div style="margin-top: 20px; display: flex; gap: 10px;">

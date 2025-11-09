@@ -6,12 +6,13 @@ use App\Models\Church;
 use App\Models\VisitSchedule;
 use Illuminate\Http\Request;
 use App\Helpers\PermissionHelper;
+use Carbon\Carbon;
 
 class VisitScheduleController extends Controller
 {
     public function index()
     {
-        $schedules = VisitSchedule::with('church')->orderBy('visit_date')->paginate(10);
+        $schedules = VisitSchedule::with('church')->orderBy('start_datetime')->paginate(10);
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
@@ -29,8 +30,26 @@ class VisitScheduleController extends Controller
     {
         $validated = $request->validate([
             'church_id' => 'required|exists:churches,id',
-            'visit_date' => 'required|date'
+            'start_datetime' => 'required|date',
+            'end_datetime' => 'required|date|after:start_datetime'
         ]);
+
+        $start = Carbon::parse($validated['start_datetime']);
+        $end = Carbon::parse($validated['end_datetime']);
+
+        // Cek overlap untuk semua jadwal (tidak peduli gerejanya)
+        $overlapExists = VisitSchedule::where(function ($q) use ($start, $end) {
+            $q->whereBetween('start_datetime', [$start, $end])
+              ->orWhereBetween('end_datetime', [$start, $end])
+              ->orWhere(function ($q2) use ($start, $end) {
+                  $q2->where('start_datetime', '<=', $start)
+                     ->where('end_datetime', '>=', $end);
+              });
+        })->exists();
+
+        if ($overlapExists) {
+            return back()->withErrors(['schedule_conflict' => 'Jadwal bentrok dengan jadwal kunjungan lain. Ketua wilayah tidak dapat berada di dua tempat pada waktu yang sama.'])->withInput();
+        }
 
         VisitSchedule::create($validated);
         return redirect()->route('worship-schedules.visits.index')
@@ -47,8 +66,27 @@ class VisitScheduleController extends Controller
     {
         $validated = $request->validate([
             'church_id' => 'required|exists:churches,id',
-            'visit_date' => 'required|date'
+            'start_datetime' => 'required|date',
+            'end_datetime' => 'required|date|after:start_datetime'
         ]);
+
+        $start = Carbon::parse($validated['start_datetime']);
+        $end = Carbon::parse($validated['end_datetime']);
+
+        // Cek overlap untuk semua jadwal kecuali jadwal yang sedang diupdate
+        $overlapExists = VisitSchedule::where('id', '!=', $schedule->id)
+            ->where(function ($q) use ($start, $end) {
+                $q->whereBetween('start_datetime', [$start, $end])
+                  ->orWhereBetween('end_datetime', [$start, $end])
+                  ->orWhere(function ($q2) use ($start, $end) {
+                      $q2->where('start_datetime', '<=', $start)
+                         ->where('end_datetime', '>=', $end);
+                  });
+            })->exists();
+
+        if ($overlapExists) {
+            return back()->withErrors(['schedule_conflict' => 'Jadwal bentrok dengan jadwal kunjungan lain. Ketua wilayah tidak dapat berada di dua tempat pada waktu yang sama.'])->withInput();
+        }
 
         $schedule->update($validated);
         return redirect()->route('worship-schedules.visits.index')

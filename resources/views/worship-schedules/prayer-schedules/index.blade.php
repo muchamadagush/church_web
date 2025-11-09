@@ -34,8 +34,7 @@
         <tr>
           <td style="padding: 15px; text-align: center;">{{ ($schedules->currentPage() - 1) * $schedules->perPage() + $index + 1 }}</td>
           <td style="padding: 15px; text-align: center;">
-            {{ date('d M Y H:i', strtotime($schedule->start_datetime)) }} - 
-            {{ date('H:i', strtotime($schedule->end_datetime)) }}
+            {{ $schedule->start_datetime->format('d F Y H:i') }} - {{ $schedule->end_datetime->format('d F Y H:i') }}
           </td>
           <td style="padding: 15px;">{{ $schedule->nama_gereja }}</td>
           <td style="padding: 15px;">{{ $schedule->pimpinan_pujian }}</td>

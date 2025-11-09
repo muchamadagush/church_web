@@ -8,11 +8,13 @@ class VisitSchedule extends Model
 {
     protected $fillable = [
         'church_id',
-        'visit_date'
+        'start_datetime',
+        'end_datetime'
     ];
 
     protected $casts = [
-        'visit_date' => 'date'
+        'start_datetime' => 'datetime',
+        'end_datetime' => 'datetime'
     ];
 
     public function church()
