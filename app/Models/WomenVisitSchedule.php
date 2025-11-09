@@ -8,13 +8,15 @@ class WomenVisitSchedule extends Model
 {
     protected $fillable = [
         'church_id',
-        'visit_date',
+        'start_datetime',
+        'end_datetime',
         'worship_leader',
         'preacher'
     ];
 
     protected $casts = [
-        'visit_date' => 'date'
+        'start_datetime' => 'datetime',
+        'end_datetime' => 'datetime'
     ];
 
     public function church()
