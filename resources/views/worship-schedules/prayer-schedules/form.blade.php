@@ -16,13 +16,36 @@
       @csrf
       @if(isset($prayer_schedule)) @method('PUT') @endif
 
+      @if($errors->has('schedule_conflict'))
+      <div style="background: #fee2e2; color: #dc2626; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
+        {{ $errors->first('schedule_conflict') }}
+      </div>
+      @endif
+
       <div style="margin-bottom: 20px;">
-        <label for="tanggal" style="display: block; margin-bottom: 8px;">
-          Tanggal
+        <label for="start_datetime" style="display: block; margin-bottom: 8px;">
+          Tanggal dan Waktu Mulai
           <span style="color: #dc2626;">*</span>
         </label>
-        <input type="text" id="datepicker-input" name="tanggal" value="{{ old('tanggal', isset($prayer_schedule) ? $prayer_schedule->tanggal->format('Y-m-d') : '') }}" required readonly style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; cursor: pointer;">
-        @error('tanggal')
+        <input type="datetime-local" id="start_datetime" name="start_datetime" 
+               value="{{ old('start_datetime', isset($prayer_schedule) ? date('Y-m-d\TH:i', strtotime($prayer_schedule->start_datetime)) : '') }}" 
+               required 
+               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+        @error('start_datetime')
+        <span style="color: red; font-size: 0.875em;">{{ $message }}</span>
+        @enderror
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label for="end_datetime" style="display: block; margin-bottom: 8px;">
+          Tanggal dan Waktu Selesai
+          <span style="color: #dc2626;">*</span>
+        </label>
+        <input type="datetime-local" id="end_datetime" name="end_datetime" 
+               value="{{ old('end_datetime', isset($prayer_schedule) ? date('Y-m-d\TH:i', strtotime($prayer_schedule->end_datetime)) : '') }}" 
+               required 
+               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+        @error('end_datetime')
         <span style="color: red; font-size: 0.875em;">{{ $message }}</span>
         @enderror
       </div>

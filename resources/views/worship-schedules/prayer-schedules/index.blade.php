@@ -20,7 +20,7 @@
       <thead style="background: #f5f5f5;">
         <tr>
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">No</th>
-          <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Tanggal</th>
+          <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Tanggal & Waktu</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tempat Doa</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pimpin Pujian</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>
@@ -33,7 +33,10 @@
         @forelse($schedules as $index => $schedule)
         <tr>
           <td style="padding: 15px; text-align: center;">{{ ($schedules->currentPage() - 1) * $schedules->perPage() + $index + 1 }}</td>
-          <td style="padding: 15px; text-align: center;">{{ date('d M Y', strtotime($schedule->tanggal)) }}</td>
+          <td style="padding: 15px; text-align: center;">
+            {{ date('d M Y H:i', strtotime($schedule->start_datetime)) }} - 
+            {{ date('H:i', strtotime($schedule->end_datetime)) }}
+          </td>
           <td style="padding: 15px;">{{ $schedule->nama_gereja }}</td>
           <td style="padding: 15px;">{{ $schedule->pimpinan_pujian }}</td>
           <td style="padding: 15px;">{{ $schedule->pengkhotbah }}</td>
@@ -89,7 +92,7 @@
 
   <div style="padding: 10px 15px 10px 0; margin-top: 15px;">
     <div style="margin-bottom: 5px;"><strong>Keterangan:</strong></div>
-    <div style="margin-bottom: 5px;">1. Jadwal Doa wilayah dilaksanakan pada jam 10.00 wita pagi</div>
+    <div style="margin-bottom: 5px;">1. Jadwal Doa wilayah dilaksanakan sesuai dengan waktu yang ditentukan</div>
     <div style="margin-bottom: 5px;">2. Harap pelayan-pelayan memperhatikan tugas yang sudah ada di jadwal ini</div>
   </div>
 </div>
