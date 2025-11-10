@@ -23,8 +23,9 @@ class YouthVisitScheduleController extends Controller
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
-
-        return view('worship-schedules.youth-visit.index', compact('schedules', 'canEdit', 'canDelete'));
+        $today = Carbon::today();
+        $hasTodaySchedules = YouthVisitSchedule::whereBetween('start_datetime', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])->exists();
+        return view('worship-schedules.youth-visit.index', compact('schedules', 'canEdit', 'canDelete', 'hasTodaySchedules'));
     }
 
     /**
@@ -162,5 +163,79 @@ class YouthVisitScheduleController extends Controller
         
         return redirect()->route('worship-schedules.youth-visit.index')
             ->with('success', 'Hapus Jadwal Kunjungan Kaum Muda Berhasil');
+    }
+
+    /**
+     * Generate schedules using greedy algorithm.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function generate(Request $request)
+    {
+        $validated = $request->validate([
+            'duration' => 'required|integer|min:30|max:480',
+        ]);
+
+        $date = Carbon::today()->startOfDay();
+        $dateEnd = $date->copy()->endOfDay();
+
+        // Check if the date already has schedules
+        $existingCount = YouthVisitSchedule::whereBetween('start_datetime', [$date, $dateEnd])->count();
+        if ($existingCount > 0) {
+            return redirect()->route('worship-schedules.youth-visit.index')
+                ->with('error', 'Tanggal tersebut sudah memiliki jadwal. Generate hanya untuk hari yang masih kosong.');
+        }
+
+        // Get all churches
+        $churches = Church::orderBy('name', 'asc')->get();
+        
+        if ($churches->isEmpty()) {
+            return redirect()->route('worship-schedules.youth-visit.index')
+                ->with('error', 'Tidak ada gereja yang tersedia.');
+        }
+
+        // Greedy algorithm: Schedule churches sequentially with breaks
+    $currentTime = Carbon::parse($date->format('Y-m-d') . ' 09:00');
+        $duration = (int) $validated['duration'];
+        if ($duration <= 0) {
+            return redirect()->route('worship-schedules.youth-visit.index')
+                ->with('error', 'Durasi tidak valid.');
+        }
+        $breakMinutes = 15;
+        $created = 0;
+
+        foreach ($churches as $church) {
+            $startDatetime = $currentTime->copy();
+            $endDatetime = $startDatetime->copy()->addMinutes((int) $duration);
+
+            // Check overlap before creating
+            $autoLeader = 'WL ' . $church->name;
+            $autoSpeaker = 'Pembicara ' . $church->name;
+            $overlap = YouthVisitSchedule::where(function($q) use ($autoLeader, $autoSpeaker){
+                    $q->where('worship_leader', $autoLeader)
+                      ->orWhere('speaker', $autoSpeaker);
+                })
+                ->where('start_datetime', '<', $endDatetime)
+                ->where('end_datetime', '>', $startDatetime)
+                ->exists();
+
+            if (!$overlap) {
+                YouthVisitSchedule::create([
+                    'church_id' => $church->id,
+                    'worship_leader' => $autoLeader,
+                    'speaker' => $autoSpeaker,
+                    'start_datetime' => $startDatetime,
+                    'end_datetime' => $endDatetime,
+                ]);
+                $created++;
+            }
+
+            // Move to next time slot
+            $currentTime->addMinutes((int) $duration + $breakMinutes);
+        }
+
+        return redirect()->route('worship-schedules.youth-visit.index')
+            ->with('success', "Berhasil generate {$created} jadwal kunjungan kaum muda.");
     }
 }

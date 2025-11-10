@@ -4,9 +4,14 @@
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h1 style="color: #333; margin: 0;">Jadwal Pertukaran Khotbah</h1>
-    @if(\App\Helpers\PermissionHelper::hasPermission('create', 'worship-schedules'))
-    <a href="{{ route('worship-schedules.sermons.create') }}" class="button-detail">+ Tambah Data</a>
-    @endif
+    <div style="display: flex; gap: 10px;">
+      @if(\App\Helpers\PermissionHelper::hasPermission('create', 'worship-schedules'))
+      <button onclick="showGenerateModal()" @if(isset($hasTodaySchedules) && $hasTodaySchedules) disabled title="Sudah ada jadwal untuk hari ini" @endif style="background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; opacity: {{ (isset($hasTodaySchedules) && $hasTodaySchedules) ? '0.6' : '1' }};">
+        🤖 Generate Jadwal
+      </button>
+      <a href="{{ route('worship-schedules.sermons.create') }}" class="button-detail">+ Tambah Data</a>
+      @endif
+    </div>
   </div>
 
   @if(session('success'))
@@ -116,6 +121,38 @@
   </div>
 </div>
 
+<!-- Generate Modal -->
+<div id="generateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+  <div style="background: white; padding: 30px; border-radius: 12px; width: 500px;">
+    <h2 style="font-size: 24px; margin-bottom: 20px; color: #333;">Generate Jadwal Otomatis</h2>
+    <form id="generateForm" method="POST" action="{{ route('worship-schedules.sermons.generate') }}">
+      @csrf
+      <!-- Tanggal dan jam di-set otomatis (hari ini, 09:00) -->
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Durasi per Jadwal (menit)</label>
+        <input type="number" name="duration" value="120" min="30" max="480" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+        <small style="color: #666;">Rentang: 30-480 menit</small>
+      </div>
+      <div style="padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; margin-bottom: 20px; border-radius: 4px;">
+        <strong style="color: #1e40af;">ℹ️ Catatan:</strong>
+        <ul style="margin: 10px 0 0 20px; color: #1e3a8a;">
+          <li>Generate hanya untuk hari ini dan hanya jika masih kosong</li>
+          <li>Sistem akan otomatis mengatur jadwal tanpa overlap</li>
+          <li>Pengkhotbah akan diassign otomatis per gereja</li>
+        </ul>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button type="button" onclick="hideGenerateModal()" style="background: #6c757d; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+          Batal
+        </button>
+        <button type="submit" style="background: #10b981; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+          Generate
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   function showDeleteModal(id) {
     const modal = document.getElementById('deleteModal');
@@ -127,6 +164,14 @@
   function hideDeleteModal() {
     const modal = document.getElementById('deleteModal');
     modal.style.display = 'none';
+  }
+
+  function showGenerateModal() {
+    document.getElementById('generateModal').style.display = 'flex';
+  }
+
+  function hideGenerateModal() {
+    document.getElementById('generateModal').style.display = 'none';
   }
 
 </script>

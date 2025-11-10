@@ -6,6 +6,7 @@ use App\Models\PrayerSchedule;
 use Illuminate\Http\Request;
 use App\Models\Church;
 use App\Helpers\PermissionHelper;
+use Carbon\Carbon;
 
 class PrayerScheduleController extends Controller
 {
@@ -16,7 +17,9 @@ class PrayerScheduleController extends Controller
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
 
-        return view('worship-schedules.prayer-schedules.index', compact('schedules', 'canEdit', 'canDelete'));
+        $today = Carbon::today();
+        $hasTodaySchedules = PrayerSchedule::whereBetween('start_datetime', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])->exists();
+        return view('worship-schedules.prayer-schedules.index', compact('schedules', 'canEdit', 'canDelete', 'hasTodaySchedules'));
     }
 
     public function create()
@@ -104,5 +107,74 @@ class PrayerScheduleController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('worship-schedules.prayer-schedules.index')->with('error', 'Gagal menghapus jadwal');
         }
+    }
+
+    /**
+     * Generate schedules using greedy algorithm.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function generate(Request $request)
+    {
+        $validated = $request->validate([
+            'duration' => 'required|integer|min:30|max:480',
+        ]);
+        $date = Carbon::today()->startOfDay();
+        $dateEnd = $date->copy()->endOfDay();
+
+        // Check if the date already has schedules
+        $existingCount = PrayerSchedule::whereBetween('start_datetime', [$date, $dateEnd])->count();
+        if ($existingCount > 0) {
+            return redirect()->route('worship-schedules.prayer-schedules.index')
+                ->with('error', 'Tanggal tersebut sudah memiliki jadwal. Generate hanya untuk hari yang masih kosong.');
+        }
+
+        // Get all churches from nama_gereja field (assuming it's stored as church names)
+        // Since PrayerSchedule uses nama_gereja as a string field, we'll create one schedule per request
+        // Or we can get churches from the Church model
+        $churches = \App\Models\Church::orderBy('name', 'asc')->get();
+        
+        if ($churches->isEmpty()) {
+            return redirect()->route('worship-schedules.prayer-schedules.index')
+                ->with('error', 'Tidak ada gereja yang tersedia.');
+        }
+
+        // Greedy algorithm: Schedule churches sequentially with breaks
+        $currentTime = Carbon::parse($date->format('Y-m-d') . ' 09:00');
+        $duration = (int) $validated['duration'];
+        if ($duration <= 0) {
+            return redirect()->route('worship-schedules.prayer-schedules.index')
+                ->with('error', 'Durasi tidak valid.');
+        }
+        $breakMinutes = 15;
+        $created = 0;
+
+        foreach ($churches as $church) {
+            $startDatetime = $currentTime->copy();
+            $endDatetime = $startDatetime->copy()->addMinutes((int) $duration);
+
+            // Check overlap before creating
+            $overlap = PrayerSchedule::where('start_datetime', '<', $endDatetime)
+                ->where('end_datetime', '>', $startDatetime)
+                ->exists();
+
+            if (!$overlap) {
+                PrayerSchedule::create([
+                    'nama_gereja' => $church->name,
+                    'pimpinan_pujian' => 'Pimpinan Pujian ' . $church->name,
+                    'pengkhotbah' => 'Pengkhotbah ' . $church->name,
+                    'start_datetime' => $startDatetime,
+                    'end_datetime' => $endDatetime,
+                ]);
+                $created++;
+            }
+
+            // Move to next time slot
+            $currentTime->addMinutes((int) $duration + $breakMinutes);
+        }
+
+        return redirect()->route('worship-schedules.prayer-schedules.index')
+            ->with('success', "Berhasil generate {$created} jadwal doa.");
     }
 }

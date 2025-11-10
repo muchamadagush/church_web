@@ -23,8 +23,10 @@ class SermonScheduleController extends Controller
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
+        $today = Carbon::today();
+        $hasTodaySchedules = SermonSchedule::whereBetween('start_datetime', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])->exists();
 
-        return view('worship-schedules.sermons.index', compact('schedules', 'canEdit', 'canDelete'));
+        return view('worship-schedules.sermons.index', compact('schedules', 'canEdit', 'canDelete', 'hasTodaySchedules'));
     }
 
     /**
@@ -169,5 +171,81 @@ class SermonScheduleController extends Controller
         $schedule->delete();
         return redirect()->route('worship-schedules.sermons.index')
                         ->with('success', 'Jadwal khotbah berhasil dihapus');
+    }
+
+    /**
+     * Generate schedule automatically using greedy algorithm
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function generate(Request $request)
+    {
+        $validated = $request->validate([
+            'duration' => 'required|integer|min:30|max:480', // 30 minutes to 8 hours
+        ]);
+
+        $date = Carbon::today();
+        $startTime = '09:00';
+        // Cast duration explicitly to int to satisfy Carbon's strict type for addMinutes
+        $duration = (int) $validated['duration'];
+        if ($duration <= 0) {
+            return back()->with('error', 'Durasi tidak valid.');
+        }
+
+        // Check if there are already schedules on this date
+        $existingCount = SermonSchedule::whereDate('start_datetime', $date->format('Y-m-d'))->count();
+        
+        if ($existingCount > 0) {
+            return back()->with('error', 'Sudah ada jadwal pada tanggal tersebut. Generate hanya untuk hari kosong.');
+        }
+
+        // Get all churches and pengkhotbah (assuming we have a list)
+        $churches = Church::orderBy('name')->get();
+        
+        if ($churches->isEmpty()) {
+            return back()->with('error', 'Tidak ada data gereja. Tambahkan gereja terlebih dahulu.');
+        }
+
+        // Greedy algorithm: try to schedule as many churches as possible
+        $scheduled = [];
+    $currentStart = Carbon::parse($date->format('Y-m-d') . ' ' . $startTime);
+
+        foreach ($churches as $index => $church) {
+            $currentEnd = $currentStart->copy()->addMinutes((int) $duration);
+            
+            // For demo, use church name as pengkhotbah or get from pool
+            $pengkhotbah = 'Gembala ' . $church->name;
+
+            // Check overlap with already scheduled items
+            $hasOverlap = false;
+            foreach ($scheduled as $s) {
+                if ($currentStart < $s['end'] && $currentEnd > $s['start']) {
+                    $hasOverlap = true;
+                    break;
+                }
+            }
+
+            if (!$hasOverlap) {
+                SermonSchedule::create([
+                    'pengkhotbah' => $pengkhotbah,
+                    'church_id' => $church->id,
+                    'start_datetime' => $currentStart,
+                    'end_datetime' => $currentEnd,
+                ]);
+
+                $scheduled[] = [
+                    'start' => $currentStart->copy(),
+                    'end' => $currentEnd->copy(),
+                ];
+
+                // Move to next slot
+                $currentStart = $currentEnd->copy()->addMinutes(15); // 15 min break
+            }
+        }
+
+        $count = count($scheduled);
+        return redirect()->route('worship-schedules.sermons.index')
+                        ->with('success', "Berhasil generate {$count} jadwal khotbah secara otomatis.");
     }
 }
