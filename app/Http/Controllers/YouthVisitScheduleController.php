@@ -17,7 +17,9 @@ class YouthVisitScheduleController extends Controller
      */
     public function index()
     {
-        $schedules = YouthVisitSchedule::with('church')->orderBy('schedule_date', 'asc')->paginate(10);
+        $schedules = YouthVisitSchedule::with('church')
+            ->orderBy('start_datetime', 'asc')
+            ->paginate(10);
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
@@ -45,17 +47,38 @@ class YouthVisitScheduleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'schedule_date' => 'required|date',
+            'start_datetime' => 'required|date',
+            'end_datetime' => 'required|date|after:start_datetime',
             'church_id' => 'required|exists:churches,id',
-            'time' => 'required',
-            'worship_leader' => 'required|string|max:255',
-            'speaker' => 'required|string|max:255',
+            'worship_leader' => 'required|string|max:255|different:speaker',
+            'speaker' => 'required|string|max:255|different:worship_leader',
         ]);
 
+        $start = Carbon::parse($request->start_datetime);
+        $end = Carbon::parse($request->end_datetime);
+
+        // Prevent double-booking the same person in any role within overlapping time
+        $personConflict = YouthVisitSchedule::where('start_datetime', '<', $end)
+            ->where('end_datetime', '>', $start)
+            ->where(function ($q) use ($request) {
+                $q->where('worship_leader', $request->worship_leader)
+                  ->orWhere('speaker', $request->worship_leader)
+                  ->orWhere('worship_leader', $request->speaker)
+                  ->orWhere('speaker', $request->speaker);
+            })
+            ->exists();
+
+        if ($personConflict) {
+            return back()->withInput()->withErrors([
+                'worship_leader' => 'Orang yang dipilih sudah terjadwal pada waktu tersebut.',
+                'speaker' => 'Orang yang dipilih sudah terjadwal pada waktu tersebut.',
+            ]);
+        }
+
         YouthVisitSchedule::create([
-            'schedule_date' => $request->schedule_date,
+            'start_datetime' => $start,
+            'end_datetime' => $end,
             'church_id' => $request->church_id,
-            'time' => $request->time,
             'worship_leader' => $request->worship_leader,
             'speaker' => $request->speaker,
         ]);
@@ -86,17 +109,39 @@ class YouthVisitScheduleController extends Controller
     public function update(Request $request, YouthVisitSchedule $schedule)
     {
         $request->validate([
-            'schedule_date' => 'required|date',
+            'start_datetime' => 'required|date',
+            'end_datetime' => 'required|date|after:start_datetime',
             'church_id' => 'required|exists:churches,id',
-            'time' => 'required',
-            'worship_leader' => 'required|string|max:255',
-            'speaker' => 'required|string|max:255',
+            'worship_leader' => 'required|string|max:255|different:speaker',
+            'speaker' => 'required|string|max:255|different:worship_leader',
         ]);
 
+        $start = Carbon::parse($request->start_datetime);
+        $end = Carbon::parse($request->end_datetime);
+
+        // Prevent double-booking for overlapping time on update (exclude self)
+        $personConflict = YouthVisitSchedule::where('id', '!=', $schedule->id)
+            ->where('start_datetime', '<', $end)
+            ->where('end_datetime', '>', $start)
+            ->where(function ($q) use ($request) {
+                $q->where('worship_leader', $request->worship_leader)
+                  ->orWhere('speaker', $request->worship_leader)
+                  ->orWhere('worship_leader', $request->speaker)
+                  ->orWhere('speaker', $request->speaker);
+            })
+            ->exists();
+
+        if ($personConflict) {
+            return back()->withInput()->withErrors([
+                'worship_leader' => 'Orang yang dipilih sudah terjadwal pada waktu tersebut.',
+                'speaker' => 'Orang yang dipilih sudah terjadwal pada waktu tersebut.',
+            ]);
+        }
+
         $schedule->update([
-            'schedule_date' => $request->schedule_date,
+            'start_datetime' => $start,
+            'end_datetime' => $end,
             'church_id' => $request->church_id,
-            'time' => $request->time,
             'worship_leader' => $request->worship_leader,
             'speaker' => $request->speaker,
         ]);

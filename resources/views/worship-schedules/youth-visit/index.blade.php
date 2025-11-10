@@ -20,9 +20,8 @@
       <thead style="background: #f5f5f5;">
         <tr>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">No</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal & Waktu</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Nama Gereja</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Jam</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pimpin Pujian</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>
           @if($canEdit || $canDelete)
@@ -34,9 +33,8 @@
         @forelse($schedules as $index => $schedule)
         <tr style="border-bottom: 1px solid #eee;">
           <td style="padding: 15px;">{{ ($schedules->currentPage() - 1) * $schedules->perPage() + $index + 1 }}</td>
-          <td style="padding: 15px;">{{ $schedule->schedule_date->format('d F Y') }}</td>
+          <td style="padding: 15px;">{{ $schedule->start_datetime?->format('d F Y H:i') }} - {{ $schedule->end_datetime?->format('d F Y H:i') }}</td>
           <td style="padding: 15px;">{{ $schedule->church->name }}</td>
-          <td style="padding: 15px;">{{ \Carbon\Carbon::parse($schedule->time)->format('H:i') }}</td>
           <td style="padding: 15px;">{{ $schedule->worship_leader }}</td>
           <td style="padding: 15px;">{{ $schedule->speaker }}</td>
           @if($canEdit || $canDelete)

@@ -10,17 +10,18 @@ class YouthVisitSchedule extends Model
     use HasFactory;
 
     protected $fillable = [
-        'schedule_date', 
+        'start_datetime',
+        'end_datetime',
         'church_id',
-        'time',
         'worship_leader',
         'speaker'
     ];
-    
+
     protected $casts = [
-        'schedule_date' => 'date',
+        'start_datetime' => 'datetime',
+        'end_datetime' => 'datetime',
     ];
-    
+
     public function church()
     {
         return $this->belongsTo(Church::class);
