@@ -17,7 +17,9 @@ class ChristmasScheduleController extends Controller
      */
     public function index()
     {
-        $schedules = ChristmasSchedule::with('church')->orderBy('schedule_date', 'asc')->paginate(10);
+        $schedules = ChristmasSchedule::with('church')
+            ->orderBy('start_datetime', 'asc')
+            ->paginate(10);
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
@@ -45,12 +47,29 @@ class ChristmasScheduleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'schedule_date' => 'required|date',
+            'start_datetime' => 'required|date',
+            'end_datetime' => 'required|date|after:start_datetime',
             'church_id' => 'required|exists:churches,id',
         ]);
 
+        // Overlap check: any schedule whose time range intersects the new range
+        $start = Carbon::parse($request->start_datetime);
+        $end = Carbon::parse($request->end_datetime);
+
+        $overlap = ChristmasSchedule::where(function ($q) use ($start, $end) {
+            $q->where(function ($inner) use ($start, $end) {
+                $inner->where('start_datetime', '<', $end)
+                      ->where('end_datetime', '>', $start);
+            });
+        })->exists();
+
+        if ($overlap) {
+            return back()->withInput()->withErrors(['start_datetime' => 'Rentang waktu bentrok dengan jadwal Natal lain.']);
+        }
+
         ChristmasSchedule::create([
-            'schedule_date' => $request->schedule_date,
+            'start_datetime' => $start,
+            'end_datetime' => $end,
             'church_id' => $request->church_id,
         ]);
 
@@ -80,12 +99,27 @@ class ChristmasScheduleController extends Controller
     public function update(Request $request, ChristmasSchedule $schedule)
     {
         $request->validate([
-            'schedule_date' => 'required|date',
+            'start_datetime' => 'required|date',
+            'end_datetime' => 'required|date|after:start_datetime',
             'church_id' => 'required|exists:churches,id',
         ]);
 
+        $start = Carbon::parse($request->start_datetime);
+        $end = Carbon::parse($request->end_datetime);
+
+        $overlap = ChristmasSchedule::where('id', '!=', $schedule->id)
+            ->where(function ($q) use ($start, $end) {
+                $q->where('start_datetime', '<', $end)
+                  ->where('end_datetime', '>', $start);
+            })->exists();
+
+        if ($overlap) {
+            return back()->withInput()->withErrors(['start_datetime' => 'Rentang waktu bentrok dengan jadwal Natal lain.']);
+        }
+
         $schedule->update([
-            'schedule_date' => $request->schedule_date,
+            'start_datetime' => $start,
+            'end_datetime' => $end,
             'church_id' => $request->church_id,
         ]);
 

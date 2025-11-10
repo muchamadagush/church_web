@@ -17,23 +17,40 @@
         @method('PUT')
       @endif
       
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; margin-bottom: 5px;">
-          Tanggal
-          <span style="color: #dc2626;">*</span>
-        </label>
-        <input
-          type="text"
-          id="datepicker-input"
-          name="schedule_date" 
-          value="{{ old('schedule_date', isset($schedule) ? $schedule->schedule_date->format('Y-m-d') : '') }}"
-          required
-          readonly
-          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; cursor: pointer;"
-        >
-        @error('schedule_date')
-          <span style="color: red; font-size: 0.8em;">{{ $message }}</span>
-        @enderror
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div>
+          <label style="display: block; margin-bottom: 5px;">
+            Mulai
+            <span style="color: #dc2626;">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            name="start_datetime"
+            value="{{ old('start_datetime', isset($schedule) && $schedule->start_datetime ? $schedule->start_datetime->format('Y-m-d\\TH:i') : '') }}"
+            required
+            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;"
+          >
+          @error('start_datetime')
+            <span style="color: red; font-size: 0.8em;">{{ $message }}</span>
+          @enderror
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 5px;">
+            Selesai
+            <span style="color: #dc2626;">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            name="end_datetime"
+            value="{{ old('end_datetime', isset($schedule) && $schedule->end_datetime ? $schedule->end_datetime->format('Y-m-d\\TH:i') : '') }}"
+            required
+            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;"
+          >
+          @error('end_datetime')
+            <span style="color: red; font-size: 0.8em;">{{ $message }}</span>
+          @enderror
+        </div>
       </div>
 
       <div style="margin-bottom: 20px;">
@@ -70,56 +87,3 @@
     </form>
   </div>
 </div>
-
-<!-- Modal untuk Datepicker -->
-<div class="modal fade" id="datepickerModal" tabindex="-1" aria-labelledby="datepickerModalLabel" aria-hidden="true">
-  <div class="modal-dialog" style="max-width: fit-content; background: white; border-radius:8px">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="datepickerModalLabel">Pilih Tanggal</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div id="datepicker-container"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="save-date">Ok</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-$(document).ready(function () {
-    // Inisialisasi datepicker di dalam modal
-    $('#datepicker-container').datepicker({
-        format: 'yyyy-mm-dd',
-        autoclose: true,
-        todayHighlight: true
-    });
-
-    // Tampilkan modal ketika input di-klik
-    $('#datepicker-input').on('click', function () {
-        $('#datepickerModal').modal('show');
-    });
-
-    // Simpan tanggal yang dipilih ke input
-    $('#save-date').on('click', function () {
-        const selectedDate = $('#datepicker-container').datepicker('getFormattedDate');
-        $('#datepicker-input').val(selectedDate);
-        $('#datepickerModal').modal('hide');
-    });
-});
-
-function previewImage(input) {
-    const preview = document.getElementById('banner-preview');
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-        }
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-</script>

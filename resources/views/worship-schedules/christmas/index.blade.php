@@ -20,7 +20,7 @@
       <thead style="background: #f5f5f5;">
         <tr>
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">No</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal & Waktu</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tempat Ibadah</th>
           @if($canEdit || $canDelete)
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6;">Aksi</th>
@@ -31,7 +31,7 @@
         @forelse($schedules as $index => $schedule)
           <tr style="border-bottom: 1px solid #eee;">
             <td style="padding: 15px; text-align: center;">{{ ($schedules->currentPage() - 1) * $schedules->perPage() + $index + 1 }}</td>
-            <td style="padding: 15px;">{{ $schedule->schedule_date->format('d F Y') }}</td>
+            <td style="padding: 15px;">{{ $schedule->start_datetime?->format('d F Y H:i') }} - {{ $schedule->end_datetime?->format('d F Y H:i') }}</td>
             <td style="padding: 15px;">{{ $schedule->church->name }}</td>
           @if($canEdit || $canDelete)
             <td style="padding: 15px; text-align: center;">
@@ -54,7 +54,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="4" style="padding: 15px; text-align: center;">Tidak ada data</td>
+            <td colspan="{{ ($canEdit || $canDelete) ? 5 : 4 }}" style="padding: 15px; text-align: center;">Tidak ada data</td>
           </tr>
         @endforelse
       </tbody>

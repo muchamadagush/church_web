@@ -9,12 +9,13 @@ class ChristmasSchedule extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['schedule_date', 'church_id'];
-    
+    protected $fillable = ['start_datetime', 'end_datetime', 'church_id'];
+
     protected $casts = [
-        'schedule_date' => 'date',
+        'start_datetime' => 'datetime',
+        'end_datetime' => 'datetime',
     ];
-    
+
     public function church()
     {
         return $this->belongsTo(Church::class);
