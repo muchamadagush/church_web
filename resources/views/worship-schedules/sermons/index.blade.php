@@ -20,8 +20,9 @@
       <thead style="background: #f0f0f0;">
         <tr style="background: #f8f9fa;">
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">No</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Tanggal & Waktu</th>
           <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Pengkhotbah</th>
-          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Jadwal Khotbah</th>
+          <th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6;">Gereja</th>
           @if($canEdit || $canDelete)
           <th style="padding: 15px; text-align: center; border-bottom: 2px solid #dee2e6; width: 150px;">Aksi</th>
           @endif
@@ -31,20 +32,11 @@
         @forelse($schedules as $index => $schedule)
         <tr style="border-bottom: 1px solid #dee2e6;">
           <td style="padding: 15px; text-align: left;">{{ ($schedules->currentPage() - 1) * $schedules->perPage() + $index + 1 }}</td>
+          <td style="padding: 15px; vertical-align: top;">{{ $schedule->start_datetime ? \Carbon\Carbon::parse($schedule->start_datetime)->format('d F Y H:i') : '-' }} - {{ $schedule->end_datetime ? \Carbon\Carbon::parse($schedule->end_datetime)->format('d F Y H:i') : '-' }}</td>
           <td style="padding: 15px; vertical-align: top;">
             <div style="font-weight: 500; color: #333;">{{ $schedule->pengkhotbah }}</div>
           </td>
-          <td style="padding: 15px; vertical-align: top;">
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              @foreach($schedule->details as $detail)
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-weight: 500;">{{ $detail->church->name }}</span>
-                <span style="color: #666;">•</span>
-                <span style="color: #D4A44D;">{{ ucfirst($detail->month) }}</span>
-              </div>
-              @endforeach
-            </div>
-          </td>
+          <td style="padding: 15px; vertical-align: top;">{{ $schedule->church->name ?? '-' }}</td>
           @if($canEdit || $canDelete)
           <td style="padding: 15px; text-align: center; vertical-align: top;">
             <div style="display: flex; gap: 5px;">
@@ -60,7 +52,7 @@
         </tr>
         @empty
         <tr>
-          <td colspan="5" style="text-align: center; padding: 15px;">Tidak ada jadwal khotbah untuk bulan ini</td>
+          <td colspan="6" style="text-align: center; padding: 15px;">Tidak ada jadwal khotbah</td>
         </tr>
         @endforelse
       </tbody>

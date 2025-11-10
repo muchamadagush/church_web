@@ -6,16 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class SermonSchedule extends Model
 {
-    protected $fillable = ['pengkhotbah'];
+    protected $fillable = [
+        'pengkhotbah',
+        'church_id',
+        'start_datetime',
+        'end_datetime',
+    ];
 
-    public function churches()
-    {
-        return $this->belongsToMany(Church::class, 'sermon_schedule_details')
-                    ->withPivot('month');
-    }
+    protected $casts = [
+        'start_datetime' => 'datetime',
+        'end_datetime' => 'datetime',
+    ];
 
-    public function details()
+    public function church()
     {
-        return $this->hasMany(SermonScheduleDetail::class);
+        return $this->belongsTo(Church::class);
     }
 }

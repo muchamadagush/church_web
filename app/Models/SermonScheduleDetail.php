@@ -9,7 +9,14 @@ class SermonScheduleDetail extends Model
     protected $fillable = [
         'sermon_schedule_id',
         'church_id',
-        'month'
+        'month',
+        'start_datetime',
+        'end_datetime',
+    ];
+
+    protected $casts = [
+        'start_datetime' => 'datetime',
+        'end_datetime' => 'datetime',
     ];
 
     public function schedule()
