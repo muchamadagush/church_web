@@ -77,7 +77,6 @@ Route::prefix('worship-schedules')->name('worship-schedules.')->group(function (
     Route::get('/christmas', [ChristmasScheduleController::class, 'index'])->name('christmas.index');
     Route::get('/christmas/create', [ChristmasScheduleController::class, 'create'])->name('christmas.create');
     Route::post('/christmas', [ChristmasScheduleController::class, 'store'])->name('christmas.store');
-    Route::post('/christmas/generate', [ChristmasScheduleController::class, 'generate'])->name('christmas.generate');
     Route::get('/christmas/{schedule}/edit', [ChristmasScheduleController::class, 'edit'])->name('christmas.edit');
     Route::put('/christmas/{schedule}', [ChristmasScheduleController::class, 'update'])->name('christmas.update');
     Route::delete('/christmas/{schedule}', [ChristmasScheduleController::class, 'destroy'])->name('christmas.destroy');

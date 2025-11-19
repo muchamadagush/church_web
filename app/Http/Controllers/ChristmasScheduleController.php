@@ -49,13 +49,37 @@ class ChristmasScheduleController extends Controller
     {
         $request->validate([
             'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after:start_datetime',
+            'end_datetime' => 'required|date',
             'church_id' => 'required|exists:churches,id',
         ]);
 
         // Overlap check: any schedule whose time range intersects the new range
         $start = Carbon::parse($request->start_datetime);
         $end = Carbon::parse($request->end_datetime);
+
+        // Validate end_datetime is after start_datetime
+        if ($end->lte($start)) {
+            return back()->withInput()->withErrors([
+                'end_datetime' => 'Waktu selesai harus lebih besar dari waktu mulai.'
+            ]);
+        }
+
+        // Only allow schedules in December and within the same year
+        if ($start->month !== 12 || $end->month !== 12 || $start->year !== $end->year) {
+            return back()->withInput()->withErrors([
+                'start_datetime' => 'Jadwal Natal hanya boleh pada bulan Desember.'
+            ]);
+        }
+
+        // Each church can only have one Christmas schedule per year
+        $existsSameYearSameChurch = ChristmasSchedule::where('church_id', $request->church_id)
+            ->whereYear('start_datetime', $start->year)
+            ->exists();
+        if ($existsSameYearSameChurch) {
+            return back()->withInput()->withErrors([
+                'church_id' => 'Gereja ini sudah memiliki Jadwal Natal pada tahun tersebut.'
+            ]);
+        }
 
         $overlap = ChristmasSchedule::where(function ($q) use ($start, $end) {
             $q->where(function ($inner) use ($start, $end) {
@@ -101,12 +125,37 @@ class ChristmasScheduleController extends Controller
     {
         $request->validate([
             'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after:start_datetime',
+            'end_datetime' => 'required|date',
             'church_id' => 'required|exists:churches,id',
         ]);
 
         $start = Carbon::parse($request->start_datetime);
         $end = Carbon::parse($request->end_datetime);
+
+        // Validate end_datetime is after start_datetime
+        if ($end->lte($start)) {
+            return back()->withInput()->withErrors([
+                'end_datetime' => 'Waktu selesai harus lebih besar dari waktu mulai.'
+            ]);
+        }
+
+        // Only allow schedules in December and within the same year
+        if ($start->month !== 12 || $end->month !== 12 || $start->year !== $end->year) {
+            return back()->withInput()->withErrors([
+                'start_datetime' => 'Jadwal Natal hanya boleh pada bulan Desember.'
+            ]);
+        }
+
+        // Each church can only have one Christmas schedule per year (exclude current)
+        $existsSameYearSameChurch = ChristmasSchedule::where('id', '!=', $schedule->id)
+            ->where('church_id', $request->church_id)
+            ->whereYear('start_datetime', $start->year)
+            ->exists();
+        if ($existsSameYearSameChurch) {
+            return back()->withInput()->withErrors([
+                'church_id' => 'Gereja ini sudah memiliki Jadwal Natal pada tahun tersebut.'
+            ]);
+        }
 
         $overlap = ChristmasSchedule::where('id', '!=', $schedule->id)
             ->where(function ($q) use ($start, $end) {
@@ -140,71 +189,5 @@ class ChristmasScheduleController extends Controller
         
         return redirect()->route('worship-schedules.christmas.index')
             ->with('success', 'Hapus Jadwal Natal Berhasil');
-    }
-
-    /**
-     * Generate schedules using greedy algorithm.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function generate(Request $request)
-    {
-        $validated = $request->validate([
-            'duration' => 'required|integer|min:30|max:480',
-        ]);
-
-        $date = Carbon::today()->startOfDay();
-        $dateEnd = $date->copy()->endOfDay();
-
-        // Check if the date already has schedules
-        $existingCount = ChristmasSchedule::whereBetween('start_datetime', [$date, $dateEnd])->count();
-        if ($existingCount > 0) {
-            return redirect()->route('worship-schedules.christmas.index')
-                ->with('error', 'Tanggal tersebut sudah memiliki jadwal. Generate hanya untuk hari yang masih kosong.');
-        }
-
-        // Get all churches
-        $churches = Church::orderBy('name', 'asc')->get();
-        
-        if ($churches->isEmpty()) {
-            return redirect()->route('worship-schedules.christmas.index')
-                ->with('error', 'Tidak ada gereja yang tersedia.');
-        }
-
-        // Greedy algorithm: Schedule churches sequentially with breaks
-    $currentTime = Carbon::parse($date->format('Y-m-d') . ' 09:00');
-        $duration = (int) $validated['duration'];
-        if ($duration <= 0) {
-            return redirect()->route('worship-schedules.christmas.index')
-                ->with('error', 'Durasi tidak valid.');
-        }
-        $breakMinutes = 15;
-        $created = 0;
-
-        foreach ($churches as $church) {
-            $startDatetime = $currentTime->copy();
-            $endDatetime = $startDatetime->copy()->addMinutes((int) $duration);
-
-            // Check overlap before creating
-            $overlap = ChristmasSchedule::where('start_datetime', '<', $endDatetime)
-                ->where('end_datetime', '>', $startDatetime)
-                ->exists();
-
-            if (!$overlap) {
-                ChristmasSchedule::create([
-                    'church_id' => $church->id,
-                    'start_datetime' => $startDatetime,
-                    'end_datetime' => $endDatetime,
-                ]);
-                $created++;
-            }
-
-            // Move to next time slot
-            $currentTime->addMinutes((int) $duration + $breakMinutes);
-        }
-
-        return redirect()->route('worship-schedules.christmas.index')
-            ->with('success', "Berhasil generate {$created} jadwal Natal.");
     }
 }
