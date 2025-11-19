@@ -81,13 +81,23 @@
           Pengkhotbah
           <span style="color: #dc2626;">*</span>
         </label>
-        <input
-          type="text" 
+        <select
           name="speaker" 
-          value="{{ old('speaker', isset($schedule) ? $schedule->speaker : '') }}" 
           required
-          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;"
-        >
+          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+          <option value="">-- Pilih Pengkhotbah --</option>
+          <option value="Pdm. YAHYA BATTO'" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "Pdm. YAHYA BATTO'" ? 'selected' : '' }}>Pdm. YAHYA BATTO'</option>
+          <option value="Pdp. SAHRINA S.Pd" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "Pdp. SAHRINA S.Pd" ? 'selected' : '' }}>Pdp. SAHRINA S.Pd</option>
+          <option value="Pdp. VIVI TAPPI'" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "Pdp. VIVI TAPPI'" ? 'selected' : '' }}>Pdp. VIVI TAPPI'</option>
+          <option value="HT. ROSNIATI DESI" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "HT. ROSNIATI DESI" ? 'selected' : '' }}>HT. ROSNIATI DESI</option>
+          <option value="Pdt. DANIEL JOHNI, S.Th" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "Pdt. DANIEL JOHNI, S.Th" ? 'selected' : '' }}>Pdt. DANIEL JOHNI, S.Th</option>
+          <option value="HT. SARA PAMO" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "HT. SARA PAMO" ? 'selected' : '' }}>HT. SARA PAMO</option>
+          <option value="Pdm. YOHANA TUNTUN, S.Th" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "Pdm. YOHANA TUNTUN, S.Th" ? 'selected' : '' }}>Pdm. YOHANA TUNTUN, S.Th</option>
+          <option value="Pdm. ANDARIAS MINGGU" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "Pdm. ANDARIAS MINGGU" ? 'selected' : '' }}>Pdm. ANDARIAS MINGGU</option>
+          <option value="Pdp. ALFRIDA SAMULANG" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "Pdp. ALFRIDA SAMULANG" ? 'selected' : '' }}>Pdp. ALFRIDA SAMULANG</option>
+          <option value="Pdm. KEPPI LOPU'" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "Pdm. KEPPI LOPU'" ? 'selected' : '' }}>Pdm. KEPPI LOPU'</option>
+          <option value="Pdm. MESAKH BENNU, S.Th" {{ old('speaker', isset($schedule) ? $schedule->speaker : '') == "Pdm. MESAKH BENNU, S.Th" ? 'selected' : '' }}>Pdm. MESAKH BENNU, S.Th</option>
+        </select>
         @error('speaker')
           <span style="color: red; font-size: 0.8em;">{{ $message }}</span>
         @enderror

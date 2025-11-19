@@ -23,9 +23,10 @@ class YouthVisitScheduleController extends Controller
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
+        $churches = Church::orderBy('name', 'asc')->get();
         $today = Carbon::today();
         $hasTodaySchedules = YouthVisitSchedule::whereBetween('start_datetime', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])->exists();
-        return view('worship-schedules.youth-visit.index', compact('schedules', 'canEdit', 'canDelete', 'hasTodaySchedules'));
+        return view('worship-schedules.youth-visit.index', compact('schedules', 'canEdit', 'canDelete', 'hasTodaySchedules', 'churches'));
     }
 
     /**
@@ -49,7 +50,7 @@ class YouthVisitScheduleController extends Controller
     {
         $request->validate([
             'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after:start_datetime',
+            'end_datetime' => 'required|date',
             'church_id' => 'required|exists:churches,id',
             'worship_leader' => 'required|string|max:255|different:speaker',
             'speaker' => 'required|string|max:255|different:worship_leader',
@@ -57,6 +58,13 @@ class YouthVisitScheduleController extends Controller
 
         $start = Carbon::parse($request->start_datetime);
         $end = Carbon::parse($request->end_datetime);
+
+        // Validate end_datetime is after start_datetime
+        if ($end->lte($start)) {
+            return back()->withInput()->withErrors([
+                'end_datetime' => 'Waktu selesai harus lebih besar dari waktu mulai.'
+            ]);
+        }
 
         // Prevent double-booking the same person in any role within overlapping time
         $personConflict = YouthVisitSchedule::where('start_datetime', '<', $end)
@@ -111,7 +119,7 @@ class YouthVisitScheduleController extends Controller
     {
         $request->validate([
             'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after:start_datetime',
+            'end_datetime' => 'required|date',
             'church_id' => 'required|exists:churches,id',
             'worship_leader' => 'required|string|max:255|different:speaker',
             'speaker' => 'required|string|max:255|different:worship_leader',
@@ -119,6 +127,13 @@ class YouthVisitScheduleController extends Controller
 
         $start = Carbon::parse($request->start_datetime);
         $end = Carbon::parse($request->end_datetime);
+
+        // Validate end_datetime is after start_datetime
+        if ($end->lte($start)) {
+            return back()->withInput()->withErrors([
+                'end_datetime' => 'Waktu selesai harus lebih besar dari waktu mulai.'
+            ]);
+        }
 
         // Prevent double-booking for overlapping time on update (exclude self)
         $personConflict = YouthVisitSchedule::where('id', '!=', $schedule->id)
@@ -166,7 +181,8 @@ class YouthVisitScheduleController extends Controller
     }
 
     /**
-     * Generate schedules using greedy algorithm.
+     * Generate schedules for youth visit - one schedule per month for the whole year.
+     * Each month gets one church in rotation.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -174,17 +190,21 @@ class YouthVisitScheduleController extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
+            'year' => 'required|integer|min:2020|max:2100',
             'duration' => 'required|integer|min:30|max:480',
         ]);
 
-        $date = Carbon::today()->startOfDay();
-        $dateEnd = $date->copy()->endOfDay();
+        $year = (int) $validated['year'];
+        $duration = (int) $validated['duration'];
 
-        // Check if the date already has schedules
-        $existingCount = YouthVisitSchedule::whereBetween('start_datetime', [$date, $dateEnd])->count();
+        // Check if schedules already exist for this year
+        $startOfYear = Carbon::create($year, 1, 1)->startOfYear();
+        $endOfYear = $startOfYear->copy()->endOfYear();
+        
+        $existingCount = YouthVisitSchedule::whereBetween('start_datetime', [$startOfYear, $endOfYear])->count();
         if ($existingCount > 0) {
             return redirect()->route('worship-schedules.youth-visit.index')
-                ->with('error', 'Tanggal tersebut sudah memiliki jadwal. Generate hanya untuk hari yang masih kosong.');
+                ->with('error', 'Tahun tersebut sudah memiliki jadwal. Generate hanya untuk tahun yang masih kosong.');
         }
 
         // Get all churches
@@ -195,47 +215,90 @@ class YouthVisitScheduleController extends Controller
                 ->with('error', 'Tidak ada gereja yang tersedia.');
         }
 
-        // Greedy algorithm: Schedule churches sequentially with breaks
-    $currentTime = Carbon::parse($date->format('Y-m-d') . ' 09:00');
-        $duration = (int) $validated['duration'];
-        if ($duration <= 0) {
-            return redirect()->route('worship-schedules.youth-visit.index')
-                ->with('error', 'Durasi tidak valid.');
-        }
-        $breakMinutes = 15;
-        $created = 0;
+        // List of speakers (pengkhotbah) to rotate
+        $speakers = [
+            'Pdm. YAHYA BATTO\'',
+            'Pdp. SAHRINA S.Pd',
+            'Pdp. VIVI TAPPI\'',
+            'HT. ROSNIATI DESI',
+            'Pdt. DANIEL JOHNI, S.Th',
+            'HT. SARA PAMO',
+            'Pdm. YOHANA TUNTUN, S.Th',
+            'Pdm. ANDARIAS MINGGU',
+            'Pdp. ALFRIDA SAMULANG',
+            'Pdm. KEPPI LOPU\'',
+            'Pdm. MESAKH BENNU, S.Th',
+        ];
 
-        foreach ($churches as $church) {
-            $startDatetime = $currentTime->copy();
-            $endDatetime = $startDatetime->copy()->addMinutes((int) $duration);
-
-            // Check overlap before creating
-            $autoLeader = 'WL ' . $church->name;
-            $autoSpeaker = 'Pembicara ' . $church->name;
-            $overlap = YouthVisitSchedule::where(function($q) use ($autoLeader, $autoSpeaker){
-                    $q->where('worship_leader', $autoLeader)
-                      ->orWhere('speaker', $autoSpeaker);
-                })
-                ->where('start_datetime', '<', $endDatetime)
-                ->where('end_datetime', '>', $startDatetime)
-                ->exists();
-
-            if (!$overlap) {
-                YouthVisitSchedule::create([
-                    'church_id' => $church->id,
-                    'worship_leader' => $autoLeader,
-                    'speaker' => $autoSpeaker,
-                    'start_datetime' => $startDatetime,
-                    'end_datetime' => $endDatetime,
-                ]);
-                $created++;
+        // Create church assignment for 12 months
+        // First, ensure each church gets at least one month
+        $churchAssignments = [];
+        $churchesArray = $churches->toArray();
+        
+        // Assign each church to at least one month
+        foreach ($churchesArray as $index => $church) {
+            if ($index < 12) { // Only if month available
+                $churchAssignments[] = $church;
             }
+        }
+        
+        // Fill remaining months with random churches
+        while (count($churchAssignments) < 12) {
+            $churchAssignments[] = $churchesArray[array_rand($churchesArray)];
+        }
+        
+        // Shuffle to randomize order while keeping all churches represented
+        shuffle($churchAssignments);
 
-            // Move to next time slot
-            $currentTime->addMinutes((int) $duration + $breakMinutes);
+        $created = 0;
+        
+        // Generate 12 schedules (one per month)
+        for ($month = 1; $month <= 12; $month++) {
+            // Get church for this month from shuffled assignments
+            $churchData = $churchAssignments[$month - 1];
+            
+            // Find all Sundays in this month
+            $firstDayOfMonth = Carbon::create($year, $month, 1);
+            $sundays = [];
+            $currentDate = $firstDayOfMonth->copy();
+            
+            // Find first Sunday
+            while ($currentDate->dayOfWeek !== Carbon::SUNDAY && $currentDate->month == $month) {
+                $currentDate->addDay();
+            }
+            
+            // Collect all Sundays in the month
+            while ($currentDate->month == $month) {
+                $sundays[] = $currentDate->day;
+                $currentDate->addWeek();
+            }
+            
+            // Random Sunday from available Sundays (prefer week 2-3)
+            $dayOfMonth = !empty($sundays) ? $sundays[array_rand($sundays)] : 1;
+            
+            // Random hour: 09:00 or 13:00
+            $hour = (rand(0, 1) == 0) ? 9 : 13;
+            
+            $startDatetime = Carbon::create($year, $month, $dayOfMonth, $hour, 0, 0);
+            $endDatetime = $startDatetime->copy()->addMinutes($duration);
+
+            // Worship leader: KM {church name}
+            $worshipLeader = 'KM ' . $churchData['name'];
+            
+            // Speaker: select randomly from the list
+            $speaker = $speakers[array_rand($speakers)];
+
+            YouthVisitSchedule::create([
+                'church_id' => $churchData['id'],
+                'worship_leader' => $worshipLeader,
+                'speaker' => $speaker,
+                'start_datetime' => $startDatetime,
+                'end_datetime' => $endDatetime,
+            ]);
+            $created++;
         }
 
         return redirect()->route('worship-schedules.youth-visit.index')
-            ->with('success', "Berhasil generate {$created} jadwal kunjungan kaum muda.");
+            ->with('success', "Berhasil generate {$created} jadwal kunjungan kaum muda untuk tahun {$year}.");
     }
 }
