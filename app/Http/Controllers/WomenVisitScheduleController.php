@@ -115,68 +115,91 @@ class WomenVisitScheduleController extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
+            'year' => 'required|integer|min:2024|max:2099',
             'duration' => 'required|integer|min:30|max:480',
         ]);
 
-        $date = Carbon::today()->startOfDay();
-        $dateEnd = $date->copy()->endOfDay();
-
-        // Check if the date already has schedules
-        $existingCount = WomenVisitSchedule::whereBetween('start_datetime', [$date, $dateEnd])->count();
-        if ($existingCount > 0) {
-            return redirect()->route('worship-schedules.women-visits.index')
-                ->with('error', 'Tanggal tersebut sudah memiliki jadwal. Generate hanya untuk hari yang masih kosong.');
-        }
-
-        // Get all churches
-        $churches = Church::orderBy('name', 'asc')->get();
-        
-        if ($churches->isEmpty()) {
-            return redirect()->route('worship-schedules.women-visits.index')
-                ->with('error', 'Tidak ada gereja yang tersedia.');
-        }
-
-        // Greedy algorithm: Schedule churches sequentially with breaks
-    $currentTime = Carbon::parse($date->format('Y-m-d') . ' 09:00');
-    $duration = (int) $validated['duration'];
+        $year = (int) $validated['year'];
+        $duration = (int) $validated['duration'];
         if ($duration <= 0) {
             return redirect()->route('worship-schedules.women-visits.index')
                 ->with('error', 'Durasi tidak valid.');
         }
-        $breakMinutes = 15;
+
+        // Ambil semua gereja
+        $churches = Church::orderBy('name', 'asc')->get();
+        if ($churches->count() < 2) {
+            return redirect()->route('worship-schedules.women-visits.index')
+                ->with('error', 'Minimal 2 gereja diperlukan untuk generate jadwal.');
+        }
+
+        $worshipLeader = 'Jemaat Setempat';
         $created = 0;
 
-        foreach ($churches as $church) {
-            $startDatetime = $currentTime->copy();
-            $endDatetime = $startDatetime->copy()->addMinutes((int) $duration);
-
-            // Check overlap before creating
-            $autoLeader = 'WL ' . $church->name;
-            $autoPreacher = 'Pengkhotbah ' . $church->name;
-            $overlap = WomenVisitSchedule::where(function($q) use ($autoLeader, $autoPreacher){
-                    $q->where('worship_leader', $autoLeader)
-                      ->orWhere('preacher', $autoPreacher);
-                })
-                ->where('start_datetime', '<', $endDatetime)
-                ->where('end_datetime', '>', $startDatetime)
-                ->exists();
-
-            if (!$overlap) {
-                WomenVisitSchedule::create([
-                    'church_id' => $church->id,
-                    'worship_leader' => $autoLeader,
-                    'preacher' => $autoPreacher,
-                    'start_datetime' => $startDatetime,
-                    'end_datetime' => $endDatetime,
-                ]);
-                $created++;
+        // Loop untuk 12 bulan
+        for ($month = 1; $month <= 12; $month++) {
+            // Cek apakah bulan ini sudah memiliki jadwal
+            $monthStart = Carbon::create($year, $month, 1)->startOfMonth();
+            $monthEnd = Carbon::create($year, $month, 1)->endOfMonth();
+            $alreadyExists = WomenVisitSchedule::whereBetween('start_datetime', [$monthStart, $monthEnd])->exists();
+            if ($alreadyExists) {
+                continue; // Skip bulan yang sudah ada jadwal
             }
 
-            // Move to next time slot
-            $currentTime->addMinutes((int) $duration + $breakMinutes);
+            // Kumpulkan semua hari Sabtu pada bulan tersebut
+            $saturdays = [];
+            $cursor = Carbon::create($year, $month, 1)->startOfDay();
+            $lastDay = $cursor->copy()->endOfMonth();
+            while ($cursor->lte($lastDay)) {
+                if ($cursor->dayOfWeek === Carbon::SATURDAY) {
+                    $start = Carbon::create($year, $month, $cursor->day, 10, 0, 0);
+                    $end = $start->copy()->addMinutes($duration);
+                    $saturdays[] = ['start' => $start, 'end' => $end];
+                }
+                $cursor->addDay();
+            }
+
+            if (empty($saturdays)) {
+                continue; // Skip jika tidak ada hari Sabtu
+            }
+
+            // Pilih 1 Sabtu secara acak
+            shuffle($saturdays);
+            $slot = $saturdays[0];
+            $startDatetime = $slot['start'];
+            $endDatetime = $slot['end'];
+
+            // Pilih tempat pelayanan acak
+            $venueChurch = $churches->shuffle()->first();
+
+            // Pilih pengkhotbah dari gereja lain (bukan gereja tempat ibadah)
+            $otherChurches = $churches->where('id', '!=', $venueChurch->id);
+            if ($otherChurches->isEmpty()) {
+                continue; // Skip jika tidak ada gereja lain
+            }
+            $preacherChurch = $otherChurches->shuffle()->first();
+            $preacher = 'Jemaat ' . $preacherChurch->name;
+
+            // Cek overlap global
+            $overlap = WomenVisitSchedule::where('start_datetime', '<', $endDatetime)
+                ->where('end_datetime', '>', $startDatetime)
+                ->exists();
+            if ($overlap) {
+                continue; // Skip jika ada overlap
+            }
+
+            // Buat jadwal
+            WomenVisitSchedule::create([
+                'church_id' => $venueChurch->id,
+                'worship_leader' => $worshipLeader,
+                'preacher' => $preacher,
+                'start_datetime' => $startDatetime,
+                'end_datetime' => $endDatetime,
+            ]);
+            $created++;
         }
 
         return redirect()->route('worship-schedules.women-visits.index')
-            ->with('success', "Berhasil generate {$created} jadwal kunjungan wanita.");
+            ->with('success', "Berhasil generate {$created} jadwal ibadah kaum wanita untuk tahun {$year}.");
     }
 }

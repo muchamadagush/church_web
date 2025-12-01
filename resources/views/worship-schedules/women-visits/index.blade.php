@@ -6,7 +6,7 @@
     <h1>Data Jadwal Perkunjungan Kaum Wanita</h1>
     @if(\App\Helpers\PermissionHelper::hasPermission('create', 'worship-schedules'))
     <div style="display: flex; gap: 10px;">
-      <button onclick="showGenerateModal()" @if(isset($hasTodaySchedules) && $hasTodaySchedules) disabled title="Sudah ada jadwal untuk hari ini" @endif style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; opacity: {{ (isset($hasTodaySchedules) && $hasTodaySchedules) ? '0.6' : '1' }};">
+      <button onclick="showGenerateModal()" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500;">
         🤖 Generate Jadwal
       </button>
       <a href="{{ route('worship-schedules.women-visits.create') }}" class="button-detail">
@@ -40,7 +40,7 @@
         @forelse($schedules as $index => $schedule)
         <tr>
           <td style="padding: 15px; text-align: center;">{{ ($schedules->currentPage() - 1) * $schedules->perPage() + $index + 1 }}</td>
-          <td style="padding: 15px;">{{ $schedule->start_datetime->format('d F Y H:i') }} - {{ $schedule->end_datetime->format('d F Y H:i') }}</td>
+          <td style="padding: 15px;">{{ $schedule->start_datetime->format('d F Y H:i') }} - {{ $schedule->end_datetime->format('H:i') }}</td>
           <td style="padding: 15px;">{{ $schedule->church->name }}</td>
           <td style="padding: 15px;">{{ $schedule->worship_leader }}</td>
           <td style="padding: 15px;">{{ $schedule->preacher }}</td>
@@ -142,20 +142,24 @@
     <h2 style="font-size: 22px; margin-bottom: 18px; color: #333;">Generate Jadwal Kunjungan Wanita Otomatis</h2>
     <form method="POST" action="{{ route('worship-schedules.women-visits.generate') }}">
       @csrf
-      <!-- Tanggal & jam otomatis: hari ini 09:00 -->
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Tahun</label>
+        <input type="number" name="year" value="{{ date('Y') }}" min="2024" max="2099" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+      </div>
       <div style="margin-bottom: 16px;">
         <label style="display: block; margin-bottom: 5px; font-weight: 500;">Durasi per Jadwal (menit)</label>
         <input type="number" name="duration" value="120" min="30" max="480" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
         <small style="color: #666;">Rentang: 30-480 menit</small>
       </div>
-      <!-- Pimpinan pujian & pengkhotbah akan otomatis ditetapkan per gereja -->
+      <!-- Pimpinan pujian & pengkhotbah otomatis sesuai aturan -->
       <div style="padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; margin-bottom: 20px; border-radius: 4px;">
         <strong style="color: #1e40af;">ℹ️ Catatan:</strong>
         <ul style="margin: 10px 0 0 20px; color: #1e3a8a;">
-          <li>Generate hanya untuk hari ini dan hanya jika masih kosong</li>
-          <li>Mulai otomatis jam 09:00 dengan jeda 15 menit antar kunjungan</li>
-          <li>Nama WL & Pengkhotbah otomatis berdasarkan nama gereja</li>
-          <li>Tidak akan membuat jadwal yang overlap untuk kombinasi tersebut</li>
+          <li>Sistem akan membuat <strong>12 jadwal otomatis</strong> dalam satu tahun</li>
+          <li>Satu bulan <strong>1x jadwal</strong> pada <strong>hari Sabtu</strong> jam <strong>10:00</strong></li>
+          <li><strong>Pimpin pujian:</strong> Jemaat Setempat</li>
+          <li><strong>Pengkhotbah:</strong> dari <strong>gereja lain</strong> (bukan tempat ibadah)</li>
+          <li>Tidak membuat jadwal yang <strong>overlap</strong> dan tidak duplikasi di bulan yang sama</li>
         </ul>
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 12px;">
