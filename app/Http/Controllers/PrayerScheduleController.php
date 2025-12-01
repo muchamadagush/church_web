@@ -32,11 +32,20 @@ class PrayerScheduleController extends Controller
     {
         $validated = $request->validate([
             'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after:start_datetime',
+            'end_datetime' => 'required|date',
             'nama_gereja' => 'required|string',
             'pimpinan_pujian' => 'required|string',
             'pengkhotbah' => 'required|string',
         ]);
+
+        // Validate end_datetime is after start_datetime
+        $start = Carbon::parse($request->start_datetime);
+        $end = Carbon::parse($request->end_datetime);
+        if ($end->lte($start)) {
+            return back()->withInput()->withErrors([
+                'end_datetime' => 'Waktu selesai harus lebih besar dari waktu mulai.'
+            ]);
+        }
 
         // Check for schedule conflicts
         $conflictingSchedule = PrayerSchedule::where(function($query) use ($request) {
@@ -70,11 +79,20 @@ class PrayerScheduleController extends Controller
     {
         $validated = $request->validate([
             'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after:start_datetime',
+            'end_datetime' => 'required|date',
             'nama_gereja' => 'required|string',
             'pimpinan_pujian' => 'required|string',
             'pengkhotbah' => 'required|string',
         ]);
+
+        // Validate end_datetime is after start_datetime
+        $start = Carbon::parse($request->start_datetime);
+        $end = Carbon::parse($request->end_datetime);
+        if ($end->lte($start)) {
+            return back()->withInput()->withErrors([
+                'end_datetime' => 'Waktu selesai harus lebih besar dari waktu mulai.'
+            ]);
+        }
 
         // Check for schedule conflicts excluding current schedule
         $conflictingSchedule = PrayerSchedule::where('id', '!=', $prayer_schedule->id)
@@ -110,7 +128,7 @@ class PrayerScheduleController extends Controller
     }
 
     /**
-     * Generate schedules using greedy algorithm.
+     * Generate schedules for prayer - one schedule per month on Friday.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -118,63 +136,120 @@ class PrayerScheduleController extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
+            'year' => 'required|integer|min:2020|max:2100',
             'duration' => 'required|integer|min:30|max:480',
         ]);
-        $date = Carbon::today()->startOfDay();
-        $dateEnd = $date->copy()->endOfDay();
 
-        // Check if the date already has schedules
-        $existingCount = PrayerSchedule::whereBetween('start_datetime', [$date, $dateEnd])->count();
+        $year = (int) $validated['year'];
+        $duration = (int) $validated['duration'];
+
+        // Check if schedules already exist for this year
+        $startOfYear = Carbon::create($year, 1, 1)->startOfYear();
+        $endOfYear = $startOfYear->copy()->endOfYear();
+        
+        $existingCount = PrayerSchedule::whereBetween('start_datetime', [$startOfYear, $endOfYear])->count();
         if ($existingCount > 0) {
             return redirect()->route('worship-schedules.prayer-schedules.index')
-                ->with('error', 'Tanggal tersebut sudah memiliki jadwal. Generate hanya untuk hari yang masih kosong.');
+                ->with('error', 'Tahun tersebut sudah memiliki jadwal. Generate hanya untuk tahun yang masih kosong.');
         }
 
-        // Get all churches from nama_gereja field (assuming it's stored as church names)
-        // Since PrayerSchedule uses nama_gereja as a string field, we'll create one schedule per request
-        // Or we can get churches from the Church model
-        $churches = \App\Models\Church::orderBy('name', 'asc')->get();
+        // Get all churches
+        $churches = Church::orderBy('name', 'asc')->get();
         
         if ($churches->isEmpty()) {
             return redirect()->route('worship-schedules.prayer-schedules.index')
                 ->with('error', 'Tidak ada gereja yang tersedia.');
         }
 
-        // Greedy algorithm: Schedule churches sequentially with breaks
-        $currentTime = Carbon::parse($date->format('Y-m-d') . ' 09:00');
-        $duration = (int) $validated['duration'];
-        if ($duration <= 0) {
-            return redirect()->route('worship-schedules.prayer-schedules.index')
-                ->with('error', 'Durasi tidak valid.');
-        }
-        $breakMinutes = 15;
+        // List of worship leaders (pimpin pujian) - 11 unique names
+        $worshipLeaders = [
+            'HT. Sahra Pamo',
+            'Ibu Rosniaty Desy',
+            'Ibu Yuni Datu Maling',
+            'Ibu Rina Tappi',
+            'Ibu Dina Kondo',
+            'Ibu Yushtin Lope\'',
+            'Ibu Alfrida Samulang',
+            'Ibu Banne Rara\'',
+            'Ibu Ludia Patoding',
+            'Ibu Alfrida Bunga',
+            'Ibu Yuni Datu Maling', // 11th entry
+        ];
+
+        // List of speakers (pengkhotbah) - 11 unique names
+        $speakers = [
+            'Pdt. Frits Natun, S.Th',
+            'Pdm. Yahya Batto\'',
+            'Pdm. Andarias Minggu',
+            'Pdt. Daniel Johni S.Th',
+            'Pdm. Mesakh Bennu, S.Th',
+            'Pdt. Frits Natun, S.Th',
+            'Ibu Yuni Datu Maling',
+            'Ibu Rina Tappi\'',
+            'Ibu Sahra Pamo',
+            'Pdt. Daniel Johni S.Th',
+            'Pdm. Yahya Batto\'', // 11th entry
+        ];
+
+        // Create assignments for 12 months ensuring all 11 names get at least 1 schedule
+        $worshipLeaderAssignments = $worshipLeaders; // Use all 11
+        $speakerAssignments = $speakers; // Use all 11
+        
+        // Add one more random selection for the 12th month
+        $worshipLeaderAssignments[] = $worshipLeaders[array_rand($worshipLeaders)];
+        $speakerAssignments[] = $speakers[array_rand($speakers)];
+        
+        // Shuffle to randomize order
+        shuffle($worshipLeaderAssignments);
+        shuffle($speakerAssignments);
+
         $created = 0;
-
-        foreach ($churches as $church) {
-            $startDatetime = $currentTime->copy();
-            $endDatetime = $startDatetime->copy()->addMinutes((int) $duration);
-
-            // Check overlap before creating
-            $overlap = PrayerSchedule::where('start_datetime', '<', $endDatetime)
-                ->where('end_datetime', '>', $startDatetime)
-                ->exists();
-
-            if (!$overlap) {
-                PrayerSchedule::create([
-                    'nama_gereja' => $church->name,
-                    'pimpinan_pujian' => 'Pimpinan Pujian ' . $church->name,
-                    'pengkhotbah' => 'Pengkhotbah ' . $church->name,
-                    'start_datetime' => $startDatetime,
-                    'end_datetime' => $endDatetime,
-                ]);
-                $created++;
+        
+        // Generate 12 schedules (one per month) - all on Friday
+        for ($month = 1; $month <= 12; $month++) {
+            // Find all Fridays in this month
+            $firstDayOfMonth = Carbon::create($year, $month, 1);
+            $fridays = [];
+            $currentDate = $firstDayOfMonth->copy();
+            
+            // Find first Friday
+            while ($currentDate->dayOfWeek !== Carbon::FRIDAY && $currentDate->month == $month) {
+                $currentDate->addDay();
             }
+            
+            // Collect all Fridays in the month
+            while ($currentDate->month == $month) {
+                $fridays[] = $currentDate->day;
+                $currentDate->addWeek();
+            }
+            
+            // Random Friday from available Fridays
+            $dayOfMonth = !empty($fridays) ? $fridays[array_rand($fridays)] : 1;
+            
+            // Fixed hour: 10:00 AM
+            $hour = 10;
+            
+            $startDatetime = Carbon::create($year, $month, $dayOfMonth, $hour, 0, 0);
+            $endDatetime = $startDatetime->copy()->addMinutes($duration);
 
-            // Move to next time slot
-            $currentTime->addMinutes((int) $duration + $breakMinutes);
+            // Select random church
+            $church = $churches->random();
+            
+            // Assign worship leader and speaker from shuffled assignments (ensures each gets at least 1)
+            $worshipLeader = $worshipLeaderAssignments[$month - 1];
+            $speaker = $speakerAssignments[$month - 1];
+
+            PrayerSchedule::create([
+                'nama_gereja' => $church->name,
+                'pimpinan_pujian' => $worshipLeader,
+                'pengkhotbah' => $speaker,
+                'start_datetime' => $startDatetime,
+                'end_datetime' => $endDatetime,
+            ]);
+            $created++;
         }
 
         return redirect()->route('worship-schedules.prayer-schedules.index')
-            ->with('success', "Berhasil generate {$created} jadwal doa.");
+            ->with('success', "Berhasil generate {$created} jadwal doa wilayah untuk tahun {$year}.");
     }
 }
