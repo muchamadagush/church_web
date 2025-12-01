@@ -111,61 +111,84 @@ class VisitScheduleController extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
+            'year' => 'required|integer|min:2024|max:2099',
+            'month' => 'required|integer|min:1|max:12',
             'duration' => 'required|integer|min:30|max:480',
         ]);
 
-        $date = Carbon::today()->startOfDay();
-        $dateEnd = $date->copy()->endOfDay();
-
-        // Check if the date already has schedules
-        $existingCount = VisitSchedule::whereBetween('start_datetime', [$date, $dateEnd])->count();
-        if ($existingCount > 0) {
-            return redirect()->route('worship-schedules.visits.index')
-                ->with('error', 'Tanggal tersebut sudah memiliki jadwal. Generate hanya untuk hari yang masih kosong.');
-        }
-
-        // Get all churches
-        $churches = Church::orderBy('name', 'asc')->get();
-        
-        if ($churches->isEmpty()) {
-            return redirect()->route('worship-schedules.visits.index')
-                ->with('error', 'Tidak ada gereja yang tersedia.');
-        }
-
-        // Greedy algorithm: Schedule churches sequentially with breaks
-    $currentTime = Carbon::parse($date->format('Y-m-d') . ' 09:00');
-    $duration = (int) $validated['duration'];
+        $year = (int) $validated['year'];
+        $month = (int) $validated['month'];
+        $duration = (int) $validated['duration'];
         if ($duration <= 0) {
             return redirect()->route('worship-schedules.visits.index')
                 ->with('error', 'Durasi tidak valid.');
         }
-        $breakMinutes = 15;
+
+        // Kumpulkan semua hari Minggu pada bulan tersebut
+        $firstDay = Carbon::create($year, $month, 1)->startOfDay();
+        $lastDay = $firstDay->copy()->endOfMonth();
+
+        $sundays = [];
+        $cursor = $firstDay->copy();
+        while ($cursor->lte($lastDay)) {
+            if ($cursor->dayOfWeek === Carbon::SUNDAY) {
+                // waktu mulai tetap jam 10:00
+                $start = Carbon::create($year, $month, $cursor->day, 10, 0, 0);
+                $end = $start->copy()->addMinutes($duration);
+                $sundays[] = ['start' => $start, 'end' => $end];
+            }
+            $cursor->addDay();
+        }
+
+        if (count($sundays) < 3) {
+            return redirect()->route('worship-schedules.visits.index')
+                ->with('error', 'Jumlah hari Minggu pada bulan ini kurang dari 3.');
+        }
+
+        // Pilih 3 hari Minggu secara acak tanpa duplikasi tanggal
+        shuffle($sundays);
+        $selectedSlots = array_slice($sundays, 0, 3);
+
+        // Ambil gereja secara acak, pastikan tidak ada gereja yang sama dalam satu bulan
+        $churches = Church::orderBy('name', 'asc')->get();
+        if ($churches->count() < 3) {
+            return redirect()->route('worship-schedules.visits.index')
+                ->with('error', 'Jumlah gereja kurang dari 3 untuk penjadwalan bulan ini.');
+        }
+        $churchIds = $churches->pluck('id')->all();
+        shuffle($churchIds);
+        $selectedChurchIds = array_slice($churchIds, 0, 3);
+
+        // Validasi: pastikan bulan tersebut belum memiliki jadwal kunjungan bertabrakan pada jam yang sama
         $created = 0;
+        foreach ($selectedSlots as $i => $slot) {
+            $startDatetime = $slot['start'];
+            $endDatetime = $slot['end'];
+            $churchId = $selectedChurchIds[$i];
 
-        foreach ($churches as $church) {
-            $startDatetime = $currentTime->copy();
-            $endDatetime = $startDatetime->copy()->addMinutes((int) $duration);
-
-            // Check overlap before creating
+            // Cek overlap global (ketua wilayah tidak bisa di dua tempat bersamaan)
             $overlap = VisitSchedule::where('start_datetime', '<', $endDatetime)
                 ->where('end_datetime', '>', $startDatetime)
                 ->exists();
 
-            if (!$overlap) {
+            // Cek apakah pada bulan yang sama sudah ada jadwal untuk gereja tersebut (hindari duplikasi gereja dalam bulan)
+            $monthStart = $firstDay->copy()->startOfMonth();
+            $monthEnd = $firstDay->copy()->endOfMonth();
+            $churchDupInMonth = VisitSchedule::where('church_id', $churchId)
+                ->whereBetween('start_datetime', [$monthStart, $monthEnd])
+                ->exists();
+
+            if (!$overlap && !$churchDupInMonth) {
                 VisitSchedule::create([
-                    'church_id' => $church->id,
+                    'church_id' => $churchId,
                     'start_datetime' => $startDatetime,
                     'end_datetime' => $endDatetime,
                 ]);
                 $created++;
             }
-
-            // Move to next time slot
-            $currentTime->addMinutes((int) $duration + $breakMinutes);
         }
 
-
         return redirect()->route('worship-schedules.visits.index')
-            ->with('success', "Berhasil generate {$created} jadwal kunjungan.");
+            ->with('success', "Berhasil generate {$created} jadwal kunjungan bulan {$month}/{$year}.");
     }
 }
