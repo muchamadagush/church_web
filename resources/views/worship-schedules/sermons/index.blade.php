@@ -6,7 +6,7 @@
     <h1 style="color: #333; margin: 0;">Jadwal Pertukaran Khotbah</h1>
     <div style="display: flex; gap: 10px;">
       @if(\App\Helpers\PermissionHelper::hasPermission('create', 'worship-schedules'))
-      <button onclick="showGenerateModal()" @if(isset($hasTodaySchedules) && $hasTodaySchedules) disabled title="Sudah ada jadwal untuk hari ini" @endif style="background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; opacity: {{ (isset($hasTodaySchedules) && $hasTodaySchedules) ? '0.6' : '1' }};">
+      <button onclick="showGenerateModal()" style="background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
         🤖 Generate Jadwal
       </button>
       <a href="{{ route('worship-schedules.sermons.create') }}" class="button-detail">+ Tambah Data</a>
@@ -37,7 +37,7 @@
         @forelse($schedules as $index => $schedule)
         <tr style="border-bottom: 1px solid #dee2e6;">
           <td style="padding: 15px; text-align: left;">{{ ($schedules->currentPage() - 1) * $schedules->perPage() + $index + 1 }}</td>
-          <td style="padding: 15px; vertical-align: top;">{{ $schedule->start_datetime ? \Carbon\Carbon::parse($schedule->start_datetime)->format('d F Y H:i') : '-' }} - {{ $schedule->end_datetime ? \Carbon\Carbon::parse($schedule->end_datetime)->format('d F Y H:i') : '-' }}</td>
+          <td style="padding: 15px; vertical-align: top;">{{ $schedule->start_datetime ? \Carbon\Carbon::parse($schedule->start_datetime)->format('d F Y H:i') : '-' }} - {{ $schedule->end_datetime ? \Carbon\Carbon::parse($schedule->end_datetime)->format('H:i') : '-' }}</td>
           <td style="padding: 15px; vertical-align: top;">
             <div style="font-weight: 500; color: #333;">{{ $schedule->pengkhotbah }}</div>
           </td>
@@ -65,8 +65,8 @@
 
     <!-- Pagination -->
     <div style="padding: 15px;">
-      @if(isset($schedules) && $schedules->hasPages())
-      <div class="pagination-container" style="display: flex; justify-content: center; margin-top: 20px;">
+      @if(isset($schedules))
+      <div class="pagination-container" style="display: flex; justify-content: start; margin-top: 20px;">
         <ul style="display: flex; list-style: none; padding: 0; margin: 0; align-items: center;">
           <!-- Previous page link -->
           @if ($schedules->onFirstPage())
@@ -127,7 +127,10 @@
     <h2 style="font-size: 24px; margin-bottom: 20px; color: #333;">Generate Jadwal Otomatis</h2>
     <form id="generateForm" method="POST" action="{{ route('worship-schedules.sermons.generate') }}">
       @csrf
-      <!-- Tanggal dan jam di-set otomatis (hari ini, 09:00) -->
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Tahun</label>
+        <input type="number" name="year" value="{{ date('Y') }}" min="2024" max="2099" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+      </div>
       <div style="margin-bottom: 20px;">
         <label style="display: block; margin-bottom: 5px; font-weight: 500;">Durasi per Jadwal (menit)</label>
         <input type="number" name="duration" value="120" min="30" max="480" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
@@ -136,9 +139,12 @@
       <div style="padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; margin-bottom: 20px; border-radius: 4px;">
         <strong style="color: #1e40af;">ℹ️ Catatan:</strong>
         <ul style="margin: 10px 0 0 20px; color: #1e3a8a;">
-          <li>Generate hanya untuk hari ini dan hanya jika masih kosong</li>
-          <li>Sistem akan otomatis mengatur jadwal tanpa overlap</li>
-          <li>Pengkhotbah akan diassign otomatis per gereja</li>
+          <li>Sistem akan membuat <strong>12 jadwal otomatis</strong> dalam satu tahun</li>
+          <li>Jadwal di setiap <strong>minggu terakhir</strong> tiap bulan</li>
+          <li>Waktu mulai tetap: <strong>Jam 10:00 pagi</strong></li>
+          <li>11 pengkhotbah akan dirotasi secara merata</li>
+          <li>Gembala tidak akan ditugaskan ke gereja sendiri</li>
+          <li>Minimal setiap pengkhotbah memiliki 1 jadwal per tahun</li>
         </ul>
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 12px;">

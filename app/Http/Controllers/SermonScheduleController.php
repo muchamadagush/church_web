@@ -23,10 +23,11 @@ class SermonScheduleController extends Controller
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
+        $churches = Church::orderBy('name', 'asc')->get();
         $today = Carbon::today();
         $hasTodaySchedules = SermonSchedule::whereBetween('start_datetime', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])->exists();
 
-        return view('worship-schedules.sermons.index', compact('schedules', 'canEdit', 'canDelete', 'hasTodaySchedules'));
+        return view('worship-schedules.sermons.index', compact('schedules', 'canEdit', 'canDelete', 'hasTodaySchedules', 'churches'));
     }
 
     /**
@@ -174,7 +175,7 @@ class SermonScheduleController extends Controller
     }
 
     /**
-     * Generate schedule automatically using greedy algorithm
+     * Generate sermon exchange schedule - one per month on last Sunday
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -182,70 +183,112 @@ class SermonScheduleController extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
-            'duration' => 'required|integer|min:30|max:480', // 30 minutes to 8 hours
+            'year' => 'required|integer|min:2020|max:2100',
+            'duration' => 'required|integer|min:30|max:480',
         ]);
 
-        $date = Carbon::today();
-        $startTime = '09:00';
-        // Cast duration explicitly to int to satisfy Carbon's strict type for addMinutes
+        $year = (int) $validated['year'];
         $duration = (int) $validated['duration'];
-        if ($duration <= 0) {
-            return back()->with('error', 'Durasi tidak valid.');
-        }
 
-        // Check if there are already schedules on this date
-        $existingCount = SermonSchedule::whereDate('start_datetime', $date->format('Y-m-d'))->count();
+        // Check if schedules already exist for this year
+        $startOfYear = Carbon::create($year, 1, 1)->startOfYear();
+        $endOfYear = $startOfYear->copy()->endOfYear();
         
+        $existingCount = SermonSchedule::whereBetween('start_datetime', [$startOfYear, $endOfYear])->count();
         if ($existingCount > 0) {
-            return back()->with('error', 'Sudah ada jadwal pada tanggal tersebut. Generate hanya untuk hari kosong.');
+            return redirect()->route('worship-schedules.sermons.index')
+                ->with('error', 'Tahun tersebut sudah memiliki jadwal. Generate hanya untuk tahun yang masih kosong.');
         }
 
-        // Get all churches and pengkhotbah (assuming we have a list)
-        $churches = Church::orderBy('name')->get();
+        // Get all churches (11 churches)
+        $churches = Church::orderBy('name', 'asc')->get();
         
-        if ($churches->isEmpty()) {
-            return back()->with('error', 'Tidak ada data gereja. Tambahkan gereja terlebih dahulu.');
+        if ($churches->count() < 11) {
+            return redirect()->route('worship-schedules.sermons.index')
+                ->with('error', 'Harus ada minimal 11 gereja untuk generate jadwal.');
         }
 
-        // Greedy algorithm: try to schedule as many churches as possible
-        $scheduled = [];
-    $currentStart = Carbon::parse($date->format('Y-m-d') . ' ' . $startTime);
+        // List of 11 preachers (pengkhotbah) with their home church
+        $preachers = [
+            ['name' => 'Pdt. DANIEL JOHNI, S.Th', 'home_church' => 'GGP SALUREA'],
+            ['name' => 'Pdm. ANDARIAS MINGGU', 'home_church' => 'GGP PA\'KAPPAN'],
+            ['name' => 'Pdp. SAHRA PAMO', 'home_church' => 'GGP LEMBAH PUJIAN TO\'LEMO'],
+            ['name' => 'Pdm. YAHYA BATTO\'', 'home_church' => 'GGP SHALOM NE\'ME\'SE'],
+            ['name' => 'Pdt. FRITS NATUN, S.Th', 'home_church' => 'GGP SOLAGRATIA TIROAN'],
+            ['name' => 'Pdt. DRIVA, S.Pd', 'home_church' => 'GGP EL SHADDAI RATTE'],
+            ['name' => 'Pdm. ELISA LIMBONG', 'home_church' => 'GGP IMANUEL RATTE'],
+            ['name' => 'Pdp. YUNI DATU MALING', 'home_church' => 'GGP BENTENG BATU'],
+            ['name' => 'Pdp. RINA TAPPI', 'home_church' => 'GGP PA\'KAPPAN'],
+            ['name' => 'Pdm. THOMAS TAPPI', 'home_church' => 'GGP ANUGRAH SALU BARUPPU\''],
+            ['name' => 'Pdt. SELESTIN K, S.Pd', 'home_church' => 'GGP BUKIT ZAITUN KOLE'],
+        ];
 
-        foreach ($churches as $index => $church) {
-            $currentEnd = $currentStart->copy()->addMinutes((int) $duration);
+        // Create church-preacher assignments for 12 months
+        // Each preacher must get at least 1 schedule
+        $assignments = [];
+        
+        // First 11 months: assign each preacher once
+        $shuffledPreachers = $preachers;
+        shuffle($shuffledPreachers);
+        
+        foreach ($shuffledPreachers as $index => $preacher) {
+            if ($index < 11) {
+                $assignments[] = $preacher;
+            }
+        }
+        
+        // 12th month: random preacher
+        $assignments[] = $preachers[array_rand($preachers)];
+        
+        // Shuffle assignments to randomize months
+        shuffle($assignments);
+
+        $created = 0;
+        
+        // Generate 12 schedules (one per month on last Sunday)
+        for ($month = 1; $month <= 12; $month++) {
+            // Find last Sunday of the month
+            $lastDayOfMonth = Carbon::create($year, $month, 1)->endOfMonth();
             
-            // For demo, use church name as pengkhotbah or get from pool
-            $pengkhotbah = 'Gembala ' . $church->name;
+            // Go backwards to find last Sunday
+            $currentDate = $lastDayOfMonth->copy();
+            while ($currentDate->dayOfWeek !== Carbon::SUNDAY) {
+                $currentDate->subDay();
+            }
+            
+            $lastSunday = $currentDate->day;
+            
+            // Fixed hour: 10:00 AM
+            $hour = 10;
+            
+            $startDatetime = Carbon::create($year, $month, $lastSunday, $hour, 0, 0);
+            $endDatetime = $startDatetime->copy()->addMinutes($duration);
 
-            // Check overlap with already scheduled items
-            $hasOverlap = false;
-            foreach ($scheduled as $s) {
-                if ($currentStart < $s['end'] && $currentEnd > $s['start']) {
-                    $hasOverlap = true;
-                    break;
-                }
+            // Get preacher for this month
+            $preacher = $assignments[$month - 1];
+            
+            // Find a church that is NOT the preacher's home church
+            $availableChurches = $churches->filter(function($church) use ($preacher) {
+                return $church->name !== $preacher['home_church'];
+            });
+            
+            if ($availableChurches->isEmpty()) {
+                // Fallback: use any church
+                $selectedChurch = $churches->random();
+            } else {
+                $selectedChurch = $availableChurches->random();
             }
 
-            if (!$hasOverlap) {
-                SermonSchedule::create([
-                    'pengkhotbah' => $pengkhotbah,
-                    'church_id' => $church->id,
-                    'start_datetime' => $currentStart,
-                    'end_datetime' => $currentEnd,
-                ]);
-
-                $scheduled[] = [
-                    'start' => $currentStart->copy(),
-                    'end' => $currentEnd->copy(),
-                ];
-
-                // Move to next slot
-                $currentStart = $currentEnd->copy()->addMinutes(15); // 15 min break
-            }
+            SermonSchedule::create([
+                'pengkhotbah' => $preacher['name'],
+                'church_id' => $selectedChurch->id,
+                'start_datetime' => $startDatetime,
+                'end_datetime' => $endDatetime,
+            ]);
+            $created++;
         }
 
-        $count = count($scheduled);
         return redirect()->route('worship-schedules.sermons.index')
-                        ->with('success', "Berhasil generate {$count} jadwal khotbah secara otomatis.");
+            ->with('success', "Berhasil generate {$created} jadwal pertukaran khotbah untuk tahun {$year}.");
     }
 }
