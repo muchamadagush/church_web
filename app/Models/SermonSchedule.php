@@ -9,6 +9,7 @@ class SermonSchedule extends Model
     protected $fillable = [
         'pengkhotbah',
         'church_id',
+        'month',
         'start_datetime',
         'end_datetime',
     ];

@@ -51,6 +51,9 @@ Route::prefix('worship-schedules')->name('worship-schedules.')->group(function (
     Route::get('/sermons/create', [SermonScheduleController::class, 'create'])->name('sermons.create');
     Route::post('/sermons', [SermonScheduleController::class, 'store'])->name('sermons.store');
     Route::post('/sermons/generate', [SermonScheduleController::class, 'generate'])->name('sermons.generate');
+    Route::get('/sermons/edit-preacher/{pengkhotbah}', [SermonScheduleController::class, 'editPreacher'])->name('sermons.edit-preacher');
+    Route::put('/sermons/update-preacher/{pengkhotbah}', [SermonScheduleController::class, 'updatePreacher'])->name('sermons.update-preacher');
+    Route::delete('/sermons/destroy-preacher/{pengkhotbah}', [SermonScheduleController::class, 'destroyPreacher'])->name('sermons.destroy-preacher');
     Route::get('/sermons/{schedule}/edit', [SermonScheduleController::class, 'edit'])->name('sermons.edit');
     Route::put('/sermons/{schedule}', [SermonScheduleController::class, 'update'])->name('sermons.update');
     Route::delete('/sermons/{schedule}', [SermonScheduleController::class, 'destroy'])->name('sermons.destroy');
