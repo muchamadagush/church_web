@@ -132,6 +132,39 @@
     modal.style.display = 'none';
   }
 
+  function checkScheduleCount() {
+    const year = parseInt(document.querySelector('input[name="year"]').value);
+    const month = parseInt(document.querySelector('input[name="month"]').value);
+    const submitBtn = document.querySelector('#generateModal button[type="submit"]');
+    const statusMsg = document.getElementById('scheduleStatusMsg');
+    
+    if (!year || !month) return;
+    
+    // Send AJAX request to check schedule count
+    fetch('{{ route("worship-schedules.visits.index") }}?check_count=1&year=' + year + '&month=' + month)
+      .then(response => response.json())
+      .then(data => {
+        const count = data.count || 0;
+        const isFull = count >= 3;
+        
+        submitBtn.disabled = isFull;
+        submitBtn.style.opacity = isFull ? '0.5' : '1';
+        submitBtn.style.cursor = isFull ? 'not-allowed' : 'pointer';
+        
+        if (isFull) {
+          statusMsg.textContent = 'Bulan ini sudah memiliki 3 jadwal. Tidak dapat membuat jadwal tambahan.';
+          statusMsg.style.display = 'block';
+        } else {
+          statusMsg.style.display = 'none';
+        }
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  function onYearMonthChange() {
+    checkScheduleCount();
+  }
+
 </script>
 
 <!-- Generate Modal -->
@@ -143,13 +176,14 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
         <div>
           <label style="display: block; margin-bottom: 5px; font-weight: 500;">Tahun</label>
-          <input type="number" name="year" value="{{ date('Y') }}" min="2024" max="2099" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+          <input type="number" name="year" value="{{ date('Y') }}" min="2024" max="2099" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" onchange="onYearMonthChange()">
         </div>
         <div>
           <label style="display: block; margin-bottom: 5px; font-weight: 500;">Bulan</label>
-          <input type="number" name="month" value="{{ date('n') }}" min="1" max="12" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+          <input type="number" name="month" value="{{ date('n') }}" min="1" max="12" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" onchange="onYearMonthChange()">
         </div>
       </div>
+      <div id="scheduleStatusMsg" style="display: none; color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 4px; margin-bottom: 16px; font-size: 14px; border-left: 4px solid #d32f2f;"></div>
       <div style="margin-bottom: 16px;">
         <label style="display: block; margin-bottom: 5px; font-weight: 500;">Durasi per Jadwal (menit)</label>
         <input type="number" name="duration" value="120" min="30" max="480" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
@@ -173,7 +207,10 @@
 </div>
 
 <script>
-  function showGenerateModal() { document.getElementById('generateModal').style.display = 'flex'; }
+  function showGenerateModal() {
+    document.getElementById('generateModal').style.display = 'flex';
+    checkScheduleCount();
+  }
   function hideGenerateModal() { document.getElementById('generateModal').style.display = 'none'; }
   // Close generate modal on outside click
   document.getElementById('generateModal').addEventListener('click', function(e){ if(e.target === this){ hideGenerateModal(); } });

@@ -12,14 +12,22 @@ class VisitScheduleController extends Controller
 {
     public function index()
     {
+        // Handle AJAX request to check schedule count
+        if (request()->has('check_count')) {
+            $year = (int) request()->input('year');
+            $month = (int) request()->input('month');
+            $monthStart = Carbon::create($year, $month, 1)->startOfMonth();
+            $monthEnd = Carbon::create($year, $month, 1)->endOfMonth();
+            $count = VisitSchedule::whereBetween('start_datetime', [$monthStart, $monthEnd])->count();
+            return response()->json(['count' => $count]);
+        }
+
         $schedules = VisitSchedule::with('church')->orderBy('start_datetime')->paginate(10);
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
-        
-    $today = Carbon::today();
-    $hasTodaySchedules = VisitSchedule::whereBetween('start_datetime', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])->exists();
-    return view('worship-schedules.visits.index', compact('schedules', 'canEdit', 'canDelete', 'hasTodaySchedules'));
+        $churches = Church::all();
+    return view('worship-schedules.visits.index', compact('schedules', 'canEdit', 'canDelete', 'churches'));
     }
 
     public function create()
@@ -128,6 +136,15 @@ class VisitScheduleController extends Controller
         $firstDay = Carbon::create($year, $month, 1)->startOfDay();
         $lastDay = $firstDay->copy()->endOfMonth();
 
+        // Cek apakah bulan ini sudah memiliki 3 jadwal
+        $monthStart = $firstDay->copy()->startOfMonth();
+        $monthEnd = $lastDay->copy()->endOfMonth();
+        $existingCount = VisitSchedule::whereBetween('start_datetime', [$monthStart, $monthEnd])->count();
+        if ($existingCount >= 3) {
+            return redirect()->route('worship-schedules.visits.index')
+                ->with('error', 'Bulan ' . $month . '/' . $year . ' sudah memiliki 3 jadwal kunjungan. Tidak dapat membuat jadwal tambahan.');
+        }
+
         $sundays = [];
         $cursor = $firstDay->copy();
         while ($cursor->lte($lastDay)) {
@@ -172,8 +189,6 @@ class VisitScheduleController extends Controller
                 ->exists();
 
             // Cek apakah pada bulan yang sama sudah ada jadwal untuk gereja tersebut (hindari duplikasi gereja dalam bulan)
-            $monthStart = $firstDay->copy()->startOfMonth();
-            $monthEnd = $firstDay->copy()->endOfMonth();
             $churchDupInMonth = VisitSchedule::where('church_id', $churchId)
                 ->whereBetween('start_datetime', [$monthStart, $monthEnd])
                 ->exists();
