@@ -61,6 +61,7 @@
                   <option value="{{ $bulan }}" {{ $schedule->month == $bulan ? 'selected' : '' }}>{{ $bulan }}</option>
                 @endforeach
               </select>
+              <small style="color: #666; font-size: 0.75em; display: block; margin-top: 4px;">Tanggal & waktu otomatis: minggu terakhir (10:00-12:00)</small>
             </div>
             <div style="padding-top: 27px;">
               <button type="button" onclick="removeSchedule(this)" style="background: #ef4444; color: white; padding: 10px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
@@ -109,6 +110,7 @@ function addSchedule() {
             <option value="{{ $bulan }}">{{ $bulan }}</option>
           @endforeach
         </select>
+        <small style="color: #666; font-size: 0.75em; display: block; margin-top: 4px;">Tanggal & waktu otomatis: minggu terakhir (10:00-12:00)</small>
       </div>
       <div style="padding-top: 27px;">
         <button type="button" onclick="removeSchedule(this)" style="background: #ef4444; color: white; padding: 10px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">

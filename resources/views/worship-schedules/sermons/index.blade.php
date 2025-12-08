@@ -45,9 +45,18 @@
             <div style="display: flex; flex-direction: column; gap: 8px;">
               @foreach($preacherSchedules as $schedule)
               <div style="background: #f8f9fa; padding: 8px 12px; border-radius: 4px;">
-                <span style="font-weight: 500; color: #333;">{{ optional($schedule->church)->name ?? '-' }}</span>
-                <span style="color: #666; margin: 0 8px;">•</span>
-                <span style="color: #D4A44D;">{{ $schedule->month ?? '-' }}</span>
+                <div style="margin-bottom: 4px;">
+                  <span style="font-weight: 500; color: #333;">{{ optional($schedule->church)->name ?? '-' }}</span>
+                  <span style="color: #666; margin: 0 8px;">•</span>
+                  <span style="color: #D4A44D;">{{ $schedule->month ?? '-' }}</span>
+                </div>
+                @if($schedule->start_datetime)
+                <div style="font-size: 12px; color: #666;">
+                  <span>📅 {{ $schedule->start_datetime->format('d M Y') }}</span>
+                  <span style="margin: 0 4px;">•</span>
+                  <span>🕐 {{ $schedule->start_datetime->format('H:i') }} - {{ $schedule->end_datetime->format('H:i') }}</span>
+                </div>
+                @endif
               </div>
               @endforeach
             </div>
@@ -61,7 +70,7 @@
               </a>
               @endif
               @if($canDelete)
-              <button type="button" onclick="deletePreacher('{{ $pengkhotbah }}')" style="background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+              <button type="button" onclick="deletePreacher(this.getAttribute('data-preacher'))" data-preacher="{{ $pengkhotbah }}" style="background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
                 Hapus
               </button>
               @endif

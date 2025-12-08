@@ -123,6 +123,7 @@
           <option value="November" {{ old('month', $schedule->month ?? '') == 'November' ? 'selected' : '' }}>November</option>
           <option value="Desember" {{ old('month', $schedule->month ?? '') == 'Desember' ? 'selected' : '' }}>Desember</option>
         </select>
+        <small style="color: #666; font-size: 0.875em;">Tanggal & waktu akan otomatis diset ke minggu terakhir bulan (10:00-12:00)</small>
         @error('month')
         <span style="color: red; font-size: 0.875em;">{{ $message }}</span>
         @enderror

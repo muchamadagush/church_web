@@ -8,16 +8,50 @@ use App\Models\SermonScheduleDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\PermissionHelper;
+use Carbon\Carbon;
 
 class SermonScheduleController extends Controller
 {
+    /**
+     * Calculate last Sunday of given month
+     */
+    private function calculateLastSunday($monthName, $year = null)
+    {
+        $year = $year ?? Carbon::now()->year;
+        $monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        $monthNumber = array_search($monthName, $monthNames) + 1;
+        
+        $date = Carbon::create($year, $monthNumber, 1);
+        $lastDayOfMonth = $date->endOfMonth();
+        
+        // Find the last Sunday
+        $lastSunday = $lastDayOfMonth->copy();
+        while ($lastSunday->dayOfWeek !== Carbon::SUNDAY) {
+            $lastSunday->subDay();
+        }
+        
+        return [
+            'start' => $lastSunday->copy()->setTime(10, 0, 0),
+            'end' => $lastSunday->copy()->setTime(12, 0, 0),
+        ];
+    }
+
     public function index()
     {
+        // Define month order for sorting
+        $monthOrder = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        
         // Group schedules by pengkhotbah
         $schedules = SermonSchedule::with('church')
             ->orderBy('pengkhotbah')
             ->get()
-            ->groupBy('pengkhotbah');
+            ->groupBy('pengkhotbah')
+            ->map(function($preacherSchedules) use ($monthOrder) {
+                // Sort each preacher's schedules by month order
+                return $preacherSchedules->sortBy(function($schedule) use ($monthOrder) {
+                    return array_search($schedule->month, $monthOrder);
+                });
+            });
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
@@ -60,10 +94,15 @@ class SermonScheduleController extends Controller
 
             // Create multiple schedules with the same pengkhotbah
             foreach ($request->schedules as $scheduleData) {
+                // Calculate datetime based on month
+                $datetime = $this->calculateLastSunday($scheduleData['month']);
+                
                 SermonSchedule::create([
                     'pengkhotbah' => $request->pengkhotbah,
                     'church_id' => $scheduleData['church_id'],
                     'month' => $scheduleData['month'],
+                    'start_datetime' => $datetime['start'],
+                    'end_datetime' => $datetime['end'],
                 ]);
             }
 
@@ -112,7 +151,16 @@ class SermonScheduleController extends Controller
         ]);
 
         try {
-            $schedule->update($validated);
+            // Calculate datetime based on month
+            $datetime = $this->calculateLastSunday($validated['month']);
+            
+            $schedule->update([
+                'pengkhotbah' => $validated['pengkhotbah'],
+                'church_id' => $validated['church_id'],
+                'month' => $validated['month'],
+                'start_datetime' => $datetime['start'],
+                'end_datetime' => $datetime['end'],
+            ]);
 
             return redirect()
                 ->route('worship-schedules.sermons.index')
@@ -180,10 +228,15 @@ class SermonScheduleController extends Controller
 
             // Create new schedules
             foreach ($request->schedules as $scheduleData) {
+                // Calculate datetime based on month
+                $datetime = $this->calculateLastSunday($scheduleData['month']);
+                
                 SermonSchedule::create([
                     'pengkhotbah' => $request->pengkhotbah,
                     'church_id' => $scheduleData['church_id'],
                     'month' => $scheduleData['month'],
+                    'start_datetime' => $datetime['start'],
+                    'end_datetime' => $datetime['end'],
                 ]);
             }
 
@@ -278,6 +331,9 @@ class SermonScheduleController extends Controller
                     $monthIndex = ($offset + $churchIndex) % $numMonths;
                     $month = $months[$monthIndex];
 
+                    // Calculate datetime based on month using helper method
+                    $datetime = $this->calculateLastSunday($month);
+
                     // Check for conflict: same church-month combination shouldn't exist already
                     if (!isset($churchMonthMatrix[$church->id][$monthIndex])) {
                         $churchMonthMatrix[$church->id][$monthIndex] = [];
@@ -289,6 +345,8 @@ class SermonScheduleController extends Controller
                         'pengkhotbah' => $preacher['name'],
                         'church_id' => $church->id,
                         'month' => $month,
+                        'start_datetime' => $datetime['start'],
+                        'end_datetime' => $datetime['end'],
                     ]);
                 }
             }
