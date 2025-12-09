@@ -88,7 +88,7 @@
         </label>
         <select name="family_status" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
           <option value="">Pilih Status</option>
-          <option value="kepala_keluarga" {{ old('family_status', $jemaat->family_status ?? '') == 'kepala_keluarga' ? 'selected' : '' }}>Ayah</option>
+          <option value="kepala_keluarga" {{ old('family_status', $jemaat->family_status ?? '') == 'kepala_keluarga' ? 'selected' : '' }}>Kepala Keluarga</option>
           <option value="istri" {{ old('family_status', $jemaat->family_status ?? '') == 'istri' ? 'selected' : '' }}>Istri</option>
           <option value="anak" {{ old('family_status', $jemaat->family_status ?? '') == 'anak' ? 'selected' : '' }}>Anak</option>
         </select>
