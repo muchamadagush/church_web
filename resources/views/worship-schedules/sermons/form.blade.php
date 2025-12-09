@@ -24,7 +24,7 @@
           <option value="">Pilih Pengkhotbah</option>
           @foreach($preachers as $preacher)
             <option value="{{ $preacher['name'] }}" {{ old('pengkhotbah', $schedule->pengkhotbah ?? '') == $preacher['name'] ? 'selected' : '' }}>
-              {{ $preacher['name'] }} ({{ $preacher['home_church'] }})
+              {{ $preacher['name'] }}
             </option>
           @endforeach
         </select>
