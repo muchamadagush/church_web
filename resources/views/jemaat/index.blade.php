@@ -115,7 +115,7 @@
           <td style="padding: 15px; text-align: center;">{{ ($jemaats->currentPage() - 1) * $jemaats->perPage() + $index + 1 }}</td>
           <td style="padding: 15px;">
             @if($jemaat->family_status == 'kepala_keluarga')
-            Ayah
+            Kepala Keluarga
             @elseif($jemaat->family_status == 'istri')
             Istri
             @elseif($jemaat->family_status == 'anak')

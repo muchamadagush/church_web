@@ -99,7 +99,7 @@ class JemaatExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
         // Format family status
         $status = $jemaat->family_status;
         if ($status == 'kepala_keluarga') {
-            $status = 'Ayah';
+            $status = 'Kepala Keluarga';
         } elseif ($status == 'istri') {
             $status = 'Istri';
         } elseif ($status == 'anak') {
