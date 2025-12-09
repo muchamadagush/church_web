@@ -174,7 +174,7 @@
 </head>
 <body>
   <div class="header">
-    <h1>Selamat Datang Di Sistem Informasi Pelayanan GGP Wilayah Baruppu'</h1>
+    <h1>Selamat Datang Di Sistem Pelayanan GGP Wilayah Baruppu'</h1>
   </div>
 
   <nav class="navbar">
