@@ -64,17 +64,17 @@ class SermonScheduleController extends Controller
         $churches = Church::all();
         
         $preachers = [
-            ['name' => 'Pdt. DANIEL JOHNI, S.Th', 'home_church' => 'GGP SALUREA'],
-            ['name' => 'Pdm. ANDARIAS MINGGU', 'home_church' => 'GGP PA\'KAPPAN'],
-            ['name' => 'Pdp. SAHRA PAMO', 'home_church' => 'GGP LEMBAH PUJIAN TO\'LEMO'],
-            ['name' => 'Pdm. YAHYA BATTO\'', 'home_church' => 'GGP SHALOM NE\'ME\'SE'],
-            ['name' => 'Pdt. FRITS NATUN, S.Th', 'home_church' => 'GGP SOLAGRATIA TIROAN'],
-            ['name' => 'Pdt. DRIVA, S.Pd', 'home_church' => 'GGP EL SHADDAI RATTE'],
-            ['name' => 'Pdm. ELISA LIMBONG', 'home_church' => 'GGP IMANUEL RATTE'],
-            ['name' => 'Pdp. YUNI DATU MALING', 'home_church' => 'GGP BENTENG BATU'],
-            ['name' => 'Pdp. RINA TAPPI', 'home_church' => 'GGP PA\'KAPPAN'],
-            ['name' => 'Pdm. THOMAS TAPPI', 'home_church' => 'GGP ANUGRAH SALU BARUPPU\''],
-            ['name' => 'Pdt. SELESTIN K, S.Pd', 'home_church' => 'GGP BUKIT ZAITUN KOLE'],
+            ['name' => 'Pdt. DANIEL JOHNI, S.Th', 'home_church' => 'GGP BUKIT ZAITUN KOLE'],
+            ['name' => 'Pdt. ANDARIAS LAYUK LANGI\'', 'home_church' => 'GGP SALUREA'],
+            ['name' => 'Pdp. SAHRA PAMO', 'home_church' => 'GGP PA\'KAPPAN'],
+            ['name' => 'Pdm. ANDARIAS MINGGU', 'home_church' => 'GGP GETSEMANI BU\'BUK'],
+            ['name' => 'Pdm. MESAKH BENNU, S.Th', 'home_church' => 'GGP LEMBAH PUJIAN TO\' LEMO'],
+            ['name' => 'Pdt. ORVA, S.Pd', 'home_church' => 'GGP SHALOM NE\'ME\'SE'],
+            ['name' => 'Pdm. MATIUS LEPPANG', 'home_church' => 'SOLAGRATIA TIROAN'],
+            ['name' => 'PdP. YUNI DATU MALING', 'home_church' => 'GGP EL-SHADDAI RATTE'],
+            ['name' => 'Pdp. RINA TAPPI\'', 'home_church' => 'GGP IMANUEL RATTE'],
+            ['name' => 'Pdm. THOMAS TAPPI', 'home_church' => 'GGP BENTENG BATU'],
+            ['name' => 'Pdt. SEMUEL SONI, S.Pd', 'home_church' => 'GGP ANUGRAH SALU BARUPPU\''],
         ];
         
         return view('worship-schedules.sermons.form', compact('churches', 'preachers'));
