@@ -65,7 +65,7 @@ class SermonScheduleController extends Controller
         
         $preachers = [
             ['name' => 'Pdt. DANIEL JOHNI, S.Th', 'home_church' => 'GGP BUKIT ZAITUN KOLE'],
-            ['name' => 'Pdt. ANDARIAS LAYUK LANGI\'', 'home_church' => 'GGP SALUREA'],
+            ['name' => 'Pdt. ANDARIAS LAYUK LANGI\', S.Th', 'home_church' => 'GGP SALUREA'],
             ['name' => 'Pdp. SAHRA PAMO', 'home_church' => 'GGP PA\'KAPPAN'],
             ['name' => 'Pdm. ANDARIAS MINGGU', 'home_church' => 'GGP GETSEMANI BU\'BUK'],
             ['name' => 'Pdm. MESAKH BENNU, S.Th', 'home_church' => 'GGP LEMBAH PUJIAN TO\' LEMO'],
