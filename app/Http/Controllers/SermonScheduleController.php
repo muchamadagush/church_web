@@ -36,26 +36,16 @@ class SermonScheduleController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // Define month order for sorting
-        $monthOrder = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-        
-        // Group schedules by pengkhotbah
+        // Paginate all schedules without grouping
         $schedules = SermonSchedule::with('church')
-            ->orderBy('pengkhotbah')
-            ->get()
-            ->groupBy('pengkhotbah')
-            ->map(function($preacherSchedules) use ($monthOrder) {
-                // Sort each preacher's schedules by month order
-                return $preacherSchedules->sortBy(function($schedule) use ($monthOrder) {
-                    return array_search($schedule->month, $monthOrder);
-                });
-            });
+            ->orderBy('start_datetime')
+            ->paginate(10);
 
         $canEdit = PermissionHelper::hasPermission('edit', 'worship-schedules');
         $canDelete = PermissionHelper::hasPermission('delete', 'worship-schedules');
-        
+
         return view('worship-schedules.sermons.index', compact('schedules', 'canEdit', 'canDelete'));
     }
 
@@ -63,48 +53,30 @@ class SermonScheduleController extends Controller
     {
         $churches = Church::all();
         
-        $preachers = [
-            ['name' => 'Pdt. DANIEL JOHNI, S.Th', 'home_church' => 'GGP BUKIT ZAITUN KOLE'],
-            ['name' => 'Pdt. ANDARIAS LAYUK LANGI\', S.Th', 'home_church' => 'GGP SALUREA'],
-            ['name' => 'Pdp. SAHRA PAMO', 'home_church' => 'GGP PA\'KAPPAN'],
-            ['name' => 'Pdm. ANDARIAS MINGGU', 'home_church' => 'GGP GETSEMANI BU\'BUK'],
-            ['name' => 'Pdm. MESAKH BENNU, S.Th', 'home_church' => 'GGP LEMBAH PUJIAN TO\' LEMO'],
-            ['name' => 'Pdt. ORVA, S.Pd', 'home_church' => 'GGP SHALOM NE\'ME\'SE'],
-            ['name' => 'Pdm. MATIUS LEPPANG', 'home_church' => 'SOLAGRATIA TIROAN'],
-            ['name' => 'PdP. YUNI DATU MALING', 'home_church' => 'GGP EL-SHADDAI RATTE'],
-            ['name' => 'Pdp. RINA TAPPI\'', 'home_church' => 'GGP IMANUEL RATTE'],
-            ['name' => 'Pdm. THOMAS TAPPI', 'home_church' => 'GGP BENTENG BATU'],
-            ['name' => 'Pdt. SEMUEL SONI, S.Pd', 'home_church' => 'GGP ANUGRAH SALU BARUPPU\''],
-        ];
-        
-        return view('worship-schedules.sermons.form', compact('churches', 'preachers'));
+        return view('worship-schedules.sermons.form', compact('churches'));
     }
 
     public function store(Request $request)
     {
-        try {
-            $validatedData = $request->validate([
-                'pengkhotbah' => 'required|string|max:255',
-                'schedules' => 'required|array|min:1',
-                'schedules.*.church_id' => 'required|exists:churches,id',
-                'schedules.*.month' => 'required|string',
-            ]);
+        $validatedData = $request->validate([
+            'pengkhotbah' => 'required|string|max:255',
+            'church_id' => 'required|exists:churches,id',
+            'month' => 'required|string',
+        ]);
 
+        try {
             DB::beginTransaction();
 
-            // Create multiple schedules with the same pengkhotbah
-            foreach ($request->schedules as $scheduleData) {
-                // Calculate datetime based on month
-                $datetime = $this->calculateLastSunday($scheduleData['month']);
-                
-                SermonSchedule::create([
-                    'pengkhotbah' => $request->pengkhotbah,
-                    'church_id' => $scheduleData['church_id'],
-                    'month' => $scheduleData['month'],
-                    'start_datetime' => $datetime['start'],
-                    'end_datetime' => $datetime['end'],
-                ]);
-            }
+            // Calculate datetime based on month
+            $datetime = $this->calculateLastSunday($validatedData['month']);
+            
+            SermonSchedule::create([
+                'pengkhotbah' => $request->pengkhotbah,
+                'church_id' => $request->church_id,
+                'month' => $request->month,
+                'start_datetime' => $datetime['start'],
+                'end_datetime' => $datetime['end'],
+            ]);
 
             DB::commit();
 
@@ -125,21 +97,7 @@ class SermonScheduleController extends Controller
     {
         $churches = Church::all();
         
-        $preachers = [
-            ['name' => 'Pdt. DANIEL JOHNI, S.Th', 'home_church' => 'GGP SALUREA'],
-            ['name' => 'Pdm. ANDARIAS MINGGU', 'home_church' => 'GGP PA\'KAPPAN'],
-            ['name' => 'Pdp. SAHRA PAMO', 'home_church' => 'GGP LEMBAH PUJIAN TO\'LEMO'],
-            ['name' => 'Pdm. YAHYA BATTO\'', 'home_church' => 'GGP SHALOM NE\'ME\'SE'],
-            ['name' => 'Pdt. FRITS NATUN, S.Th', 'home_church' => 'GGP SOLAGRATIA TIROAN'],
-            ['name' => 'Pdt. DRIVA, S.Pd', 'home_church' => 'GGP EL SHADDAI RATTE'],
-            ['name' => 'Pdm. ELISA LIMBONG', 'home_church' => 'GGP IMANUEL RATTE'],
-            ['name' => 'Pdp. YUNI DATU MALING', 'home_church' => 'GGP BENTENG BATU'],
-            ['name' => 'Pdp. RINA TAPPI', 'home_church' => 'GGP PA\'KAPPAN'],
-            ['name' => 'Pdm. THOMAS TAPPI', 'home_church' => 'GGP ANUGRAH SALU BARUPPU\''],
-            ['name' => 'Pdt. SELESTIN K, S.Pd', 'home_church' => 'GGP BUKIT ZAITUN KOLE'],
-        ];
-        
-        return view('worship-schedules.sermons.form', compact('schedule', 'churches', 'preachers'));
+        return view('worship-schedules.sermons.form', compact('schedule', 'churches'));
     }
 
     public function update(Request $request, SermonSchedule $schedule)
@@ -180,183 +138,94 @@ class SermonScheduleController extends Controller
                         ->with('success', 'Jadwal pertukaran khotbah berhasil dihapus');
     }
 
-    public function editPreacher($pengkhotbah)
-    {
-        $pengkhotbah = urldecode($pengkhotbah);
-        $schedules = SermonSchedule::where('pengkhotbah', $pengkhotbah)->get();
-        
-        if ($schedules->isEmpty()) {
-            return redirect()->route('worship-schedules.sermons.index')
-                ->with('error', 'Pengkhotbah tidak ditemukan');
-        }
-        
-        $churches = Church::all();
-        
-        $preachers = [
-            ['name' => 'Pdt. DANIEL JOHNI, S.Th', 'home_church' => 'GGP SALUREA'],
-            ['name' => 'Pdm. ANDARIAS MINGGU', 'home_church' => 'GGP PA\'KAPPAN'],
-            ['name' => 'Pdp. SAHRA PAMO', 'home_church' => 'GGP LEMBAH PUJIAN TO\'LEMO'],
-            ['name' => 'Pdm. YAHYA BATTO\'', 'home_church' => 'GGP SHALOM NE\'ME\'SE'],
-            ['name' => 'Pdt. FRITS NATUN, S.Th', 'home_church' => 'GGP SOLAGRATIA TIROAN'],
-            ['name' => 'Pdt. DRIVA, S.Pd', 'home_church' => 'GGP EL SHADDAI RATTE'],
-            ['name' => 'Pdm. ELISA LIMBONG', 'home_church' => 'GGP IMANUEL RATTE'],
-            ['name' => 'Pdp. YUNI DATU MALING', 'home_church' => 'GGP BENTENG BATU'],
-            ['name' => 'Pdp. RINA TAPPI', 'home_church' => 'GGP PA\'KAPPAN'],
-            ['name' => 'Pdm. THOMAS TAPPI', 'home_church' => 'GGP ANUGRAH SALU BARUPPU\''],
-            ['name' => 'Pdt. SELESTIN K, S.Pd', 'home_church' => 'GGP BUKIT ZAITUN KOLE'],
-        ];
-        
-        return view('worship-schedules.sermons.edit-preacher', compact('schedules', 'pengkhotbah', 'churches', 'preachers'));
-    }
-
-    public function updatePreacher(Request $request, $pengkhotbah)
-    {
-        $pengkhotbah = urldecode($pengkhotbah);
-        
-        try {
-            $validatedData = $request->validate([
-                'pengkhotbah' => 'required|string|max:255',
-                'schedules' => 'required|array|min:1',
-                'schedules.*.church_id' => 'required|exists:churches,id',
-                'schedules.*.month' => 'required|string',
-            ]);
-
-            DB::beginTransaction();
-
-            // Delete all old schedules for this pengkhotbah
-            SermonSchedule::where('pengkhotbah', $pengkhotbah)->delete();
-
-            // Create new schedules
-            foreach ($request->schedules as $scheduleData) {
-                // Calculate datetime based on month
-                $datetime = $this->calculateLastSunday($scheduleData['month']);
-                
-                SermonSchedule::create([
-                    'pengkhotbah' => $request->pengkhotbah,
-                    'church_id' => $scheduleData['church_id'],
-                    'month' => $scheduleData['month'],
-                    'start_datetime' => $datetime['start'],
-                    'end_datetime' => $datetime['end'],
-                ]);
-            }
-
-            DB::commit();
-
-            return redirect()
-                ->route('worship-schedules.sermons.index')
-                ->with('success', 'Jadwal khotbah berhasil diperbarui');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Error updating preacher schedules: ' . $e->getMessage());
-            
-            return back()
-                ->withInput()
-                ->with('error', 'Gagal memperbarui jadwal: ' . $e->getMessage());
-        }
-    }
-
-    public function destroyPreacher($pengkhotbah)
-    {
-        $pengkhotbah = urldecode($pengkhotbah);
-        
-        try {
-            $deleted = SermonSchedule::where('pengkhotbah', $pengkhotbah)->delete();
-            
-            if ($deleted > 0) {
-                return redirect()->route('worship-schedules.sermons.index')
-                    ->with('success', "Semua jadwal untuk {$pengkhotbah} berhasil dihapus");
-            } else {
-                return redirect()->route('worship-schedules.sermons.index')
-                    ->with('error', 'Pengkhotbah tidak ditemukan');
-            }
-        } catch (\Exception $e) {
-            \Log::error('Error deleting preacher schedules: ' . $e->getMessage());
-            return redirect()->route('worship-schedules.sermons.index')
-                ->with('error', 'Gagal menghapus jadwal: ' . $e->getMessage());
-        }
-    }
-
     public function generate(Request $request)
     {
+        $request->validate([
+            'year' => 'required|integer|min:2020|max:2030',
+        ]);
+
+        $year = $request->year;
+
         try {
-            // Check if any schedules exist
-            $existingCount = SermonSchedule::count();
+            // Check if schedules exist for this year
+            $existingCount = SermonSchedule::whereYear('start_datetime', $year)->count();
             if ($existingCount > 0) {
                 return redirect()
                     ->route('worship-schedules.sermons.index')
-                    ->with('error', 'Jadwal sudah ada. Hapus semua jadwal terlebih dahulu untuk membuat jadwal baru.');
+                    ->with('error', "Jadwal untuk tahun {$year} sudah ada. Hapus jadwal tahun tersebut terlebih dahulu untuk membuat jadwal baru.");
             }
 
             $preachers = [
-                ['name' => 'Pdt. DANIEL JOHNI, S.Th', 'home_church' => 'GGP SALUREA'],
-                ['name' => 'Pdm. ANDARIAS MINGGU', 'home_church' => 'GGP PA\'KAPPAN'],
-                ['name' => 'Pdp. SAHRA PAMO', 'home_church' => 'GGP LEMBAH PUJIAN TO\'LEMO'],
-                ['name' => 'Pdm. YAHYA BATTO\'', 'home_church' => 'GGP SHALOM NE\'ME\'SE'],
-                ['name' => 'Pdt. FRITS NATUN, S.Th', 'home_church' => 'GGP SOLAGRATIA TIROAN'],
-                ['name' => 'Pdt. DRIVA, S.Pd', 'home_church' => 'GGP EL SHADDAI RATTE'],
-                ['name' => 'Pdm. ELISA LIMBONG', 'home_church' => 'GGP IMANUEL RATTE'],
-                ['name' => 'Pdp. YUNI DATU MALING', 'home_church' => 'GGP BENTENG BATU'],
-                ['name' => 'Pdp. RINA TAPPI', 'home_church' => 'GGP PA\'KAPPAN'],
-                ['name' => 'Pdm. THOMAS TAPPI', 'home_church' => 'GGP ANUGRAH SALU BARUPPU\''],
-                ['name' => 'Pdt. SELESTIN K, S.Pd', 'home_church' => 'GGP BUKIT ZAITUN KOLE'],
+                ['name' => 'Pdt. DANIEL JOHNI, S.Th', 'home_church' => 'GGP BUKIT ZAITUN KOLE'],
+                ['name' => 'Pdt. ANDARIAS LAYUK LANGI\', S.Th', 'home_church' => 'GGP SALUREA'],
+                ['name' => 'Pdp. SAHRA PAMO', 'home_church' => 'GGP PA\'KAPPAN'],
+                ['name' => 'Pdm. ANDARIAS MINGGU', 'home_church' => 'GGP GETSEMANI BU\'BUK'],
+                ['name' => 'Pdm. MESAKH BENNU, S.Th', 'home_church' => 'GGP LEMBAH PUJIAN TO\' LEMO'],
+                ['name' => 'Pdt. ORVA, S.Pd', 'home_church' => 'GGP SHALOM NE\'ME\'SE'],
+                ['name' => 'Pdm. MATIUS LEPPANG', 'home_church' => 'SOLAGRATIA TIROAN'],
+                ['name' => 'PdP. YUNI DATU MALING', 'home_church' => 'GGP EL-SHADDAI RATTE'],
+                ['name' => 'Pdp. RINA TAPPI\'', 'home_church' => 'GGP IMANUEL RATTE'],
+                ['name' => 'Pdm. THOMAS TAPPI', 'home_church' => 'GGP BENTENG BATU'],
+                ['name' => 'Pdt. SEMUEL SONI, S.Pd', 'home_church' => 'GGP ANUGRAH SALU BARUPPU\''],
             ];
 
             $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             $churches = Church::all();
             $numPreachers = count($preachers);
             $numChurches = $churches->count();
-            $numMonths = count($months);
 
-            // Validation: Check if we have enough months for distribution
-            if ($numMonths < $numChurches) {
+            // Validation: Ensure we have enough churches for preachers to rotate
+            if ($numChurches < 2) {
                 return redirect()
                     ->route('worship-schedules.sermons.index')
-                    ->with('error', 'Jumlah bulan harus lebih besar atau sama dengan jumlah gereja untuk distribusi yang merata.');
+                    ->with('error', 'Minimal 2 gereja diperlukan untuk rotasi pengkhotbah.');
             }
 
             DB::beginTransaction();
 
-            // Algorithm: Distribute months to churches for each preacher
-            // Create a rotation schedule to avoid conflicts
-            $churchMonthMatrix = []; // Store [church_id][month] assignments
+            $totalSchedules = 0;
 
-            // For each preacher, assign months to churches
-            foreach ($preachers as $preacherIndex => $preacher) {
-                // Calculate offset for this preacher to ensure different month distributions
-                $offset = ($preacherIndex * $numChurches) % $numMonths;
+            // For each month, assign preachers to random churches (not their home church)
+            foreach ($months as $monthIndex => $month) {
+                // Calculate last Sunday of the month for the given year
+                $datetime = $this->calculateLastSunday($month, $year);
 
-                // For each church, assign a different month
-                foreach ($churches as $churchIndex => $church) {
-                    // Calculate month index with rotation
-                    $monthIndex = ($offset + $churchIndex) % $numMonths;
-                    $month = $months[$monthIndex];
+                // Shuffle preachers for randomization
+                $shuffledPreachers = collect($preachers)->shuffle();
 
-                    // Calculate datetime based on month using helper method
-                    $datetime = $this->calculateLastSunday($month);
+                // Assign each preacher to a random church that's not their home church
+                foreach ($shuffledPreachers as $preacher) {
+                    // Get churches excluding home church
+                    $availableChurches = $churches->filter(function($church) use ($preacher) {
+                        return $church->name !== $preacher['home_church'];
+                    });
 
-                    // Check for conflict: same church-month combination shouldn't exist already
-                    if (!isset($churchMonthMatrix[$church->id][$monthIndex])) {
-                        $churchMonthMatrix[$church->id][$monthIndex] = [];
+                    if ($availableChurches->isEmpty()) {
+                        // If no other churches available, skip this preacher for this month
+                        continue;
                     }
-                    $churchMonthMatrix[$church->id][$monthIndex][] = $preacher['name'];
+
+                    // Select random church
+                    $selectedChurch = $availableChurches->random();
 
                     // Create schedule
                     SermonSchedule::create([
                         'pengkhotbah' => $preacher['name'],
-                        'church_id' => $church->id,
+                        'church_id' => $selectedChurch->id,
                         'month' => $month,
                         'start_datetime' => $datetime['start'],
                         'end_datetime' => $datetime['end'],
                     ]);
+
+                    $totalSchedules++;
                 }
             }
 
             DB::commit();
 
-            $totalSchedules = $numPreachers * $numChurches;
             return redirect()
                 ->route('worship-schedules.sermons.index')
-                ->with('success', "Jadwal pertukaran khotbah berhasil dibuat otomatis. Total {$totalSchedules} jadwal dibuat.");
+                ->with('success', "Jadwal pertukaran khotbah untuk tahun {$year} berhasil dibuat. Total {$totalSchedules} jadwal dibuat.");
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error generating sermon schedules: ' . $e->getMessage());
