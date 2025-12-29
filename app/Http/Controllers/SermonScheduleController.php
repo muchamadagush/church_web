@@ -163,7 +163,7 @@ class SermonScheduleController extends Controller
                 ['name' => 'Pdm. MESAKH BENNU, S.Th', 'home_church' => 'GGP LEMBAH PUJIAN TO\' LEMO'],
                 ['name' => 'Pdt. ORVA, S.Pd', 'home_church' => 'GGP SHALOM NE\'ME\'SE'],
                 ['name' => 'Pdm. MATIUS LEPPANG', 'home_church' => 'SOLAGRATIA TIROAN'],
-                ['name' => 'PdP. YUNI DATU MALING', 'home_church' => 'GGP EL-SHADDAI RATTE'],
+                ['name' => 'Pdp. YUNI DATU MALING', 'home_church' => 'GGP EL-SHADDAI RATTE'],
                 ['name' => 'Pdp. RINA TAPPI\'', 'home_church' => 'GGP IMANUEL RATTE'],
                 ['name' => 'Pdm. THOMAS TAPPI', 'home_church' => 'GGP BENTENG BATU'],
                 ['name' => 'Pdt. SEMUEL SONI, S.Pd', 'home_church' => 'GGP ANUGRAH SALU BARUPPU\''],
@@ -184,11 +184,20 @@ class SermonScheduleController extends Controller
             DB::beginTransaction();
 
             $totalSchedules = 0;
+            // Track which preacher is assigned to which church (across all months)
+            // Format: ['preacher_name']['church_id'] = true
+            $preacherChurchAssignments = [];
+            // Track which churches are assigned in each month
+            // Format: ['month']['church_id'] = true
+            $churchAssignmentsByMonth = [];
 
             // For each month, assign preachers to random churches (not their home church)
             foreach ($months as $monthIndex => $month) {
                 // Calculate last Sunday of the month for the given year
                 $datetime = $this->calculateLastSunday($month, $year);
+
+                // Initialize church assignments for this month
+                $churchAssignmentsByMonth[$month] = [];
 
                 // Shuffle preachers for randomization
                 $shuffledPreachers = collect($preachers)->shuffle();
@@ -196,8 +205,23 @@ class SermonScheduleController extends Controller
                 // Assign each preacher to a random church that's not their home church
                 foreach ($shuffledPreachers as $preacher) {
                     // Get churches excluding home church
-                    $availableChurches = $churches->filter(function($church) use ($preacher) {
-                        return $church->name !== $preacher['home_church'];
+                    $availableChurches = $churches->filter(function($church) use ($preacher, $preacherChurchAssignments, $churchAssignmentsByMonth, $month) {
+                        // Exclude home church
+                        if ($church->name === $preacher['home_church']) {
+                            return false;
+                        }
+                        
+                        // Exclude church if preacher already has a schedule in that church (across all months)
+                        if (isset($preacherChurchAssignments[$preacher['name']][$church->id])) {
+                            return false;
+                        }
+                        
+                        // Exclude church if it's already assigned for this month (no 2 preachers at same time/place)
+                        if (isset($churchAssignmentsByMonth[$month][$church->id])) {
+                            return false;
+                        }
+                        
+                        return true;
                     });
 
                     if ($availableChurches->isEmpty()) {
@@ -207,6 +231,15 @@ class SermonScheduleController extends Controller
 
                     // Select random church
                     $selectedChurch = $availableChurches->random();
+
+                    // Track this assignment across months
+                    if (!isset($preacherChurchAssignments[$preacher['name']])) {
+                        $preacherChurchAssignments[$preacher['name']] = [];
+                    }
+                    $preacherChurchAssignments[$preacher['name']][$selectedChurch->id] = true;
+
+                    // Track this church assignment for this month
+                    $churchAssignmentsByMonth[$month][$selectedChurch->id] = true;
 
                     // Create schedule
                     SermonSchedule::create([
